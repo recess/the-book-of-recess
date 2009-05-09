@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<part xmlns="http://docbook.org/ns/docbook"
+		 xmlns:xi="http://www.w3.org/2001/XInclude">
+	<title>Getting Started</title>
+	<xi:include href="02-getting-started/01-installing-recess.xml" />
+</part>

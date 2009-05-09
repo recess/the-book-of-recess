@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<book	xmlns="http://docbook.org/ns/docbook" 
+		xmlns:xi="http://www.w3.org/2001/XInclude"
+		version="5.0" 
+		xml:lang="en">
+	<title>The Recess PHP Framework</title>
+	<xi:include href="01-introduction.xml" />
+	<xi:include href="02-getting-started.xml" />
+	<xi:include href="03-writing-an-app.xml" />
+	<xi:include href="04-the-recess-framework.xml" />
+	<xi:include href="05-deploying-recess-apps.xml" />
+	<xi:include href="06-contributing-to-recess.xml" />
+</book>

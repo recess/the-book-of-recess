@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<part xmlns="http://docbook.org/ns/docbook"
+		 xmlns:xi="http://www.w3.org/2001/XInclude">
+	<title>Deploying Recess Applications</title>
+	<xi:include href="05-deploying-recess-apps/01-deployment.xml" />
+	<xi:include href="05-deploying-recess-apps/02-production-mode.xml" />
+</part>
