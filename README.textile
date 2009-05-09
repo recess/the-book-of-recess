@@ -1,0 +1,11 @@
+h1. Recess PHP Framework Docbook Repository
+
+h2. Tools for Publishing:
+
+* "Saxon":http://saxon.sourceforge.net/
+* "Docbook xsl2 Stylesheets (Zip)":http://docbook.sourceforge.net/snapshots/docbook-xsl2-snapshot.zip
+* "Docbook xsl2 Stylesheets (Tarball)":http://docbook.sourceforge.net/snapshots/docbook-xsl2-snapshot.tar.bz2
+
+java -jar /path/to/saxon9.jar -o output.html recess-docbook.xml /path/to/docbook-xsl2-snapshot/html/docbook.xsl
+
+
