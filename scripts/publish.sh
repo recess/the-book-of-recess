@@ -1,18 +1,26 @@
 #!/bin/bash
 
-saxon="libs/saxon/saxon9.jar"
-xsl="libs/docbook-xsl/docbook-xsl2-snapshot/base/html/docbook.xsl"
+input=recess-docbook.xml
 
-recessdocbook="recess-docbook.xml"
-output="pub/recess.html"
+base=`pwd`
+xalan=libs/xalan/xalan-j_2_7_1
+xsl=libs/docbook-xsl/docbook-xsl-ns-1.75.0
+xslChunked=$xsl/html/chunk.xsl
+xslAllInOne=$xsl/html/docbook.xsl
+xslFO=$xsl/fo/docbook.xsl
+fop=libs/fop/fop-0.95
+outputAllInOne=pub/html/the-book-of-recess.html
+outputChunked=pub/html/index.html
+outputFO=pub/fo/the-book-of-recess.fo
+outputPDF=pub/pdf/the-book-of-recess.pdf
 
-if [ ! -f $saxon ]; then
-	echo "Saxon not found. Run install script: ./scripts/install.sh"
+if [ ! -f $xalan/xalan.jar ]; then
+	echo "Xalan not found. Run install script: ./scripts/install.sh"
 	exit
 fi
 
-if [ ! -f $xsl ]; then
-	echo "XSL2 stylesheets not found. Run install script: ./scripts/install.sh"
+if [ ! -f $xsl_template ]; then
+	echo "XSL stylesheets not found. Run install script: ./scripts/install.sh"
 	exit
 fi
 
@@ -20,6 +28,53 @@ if [ ! -d "pub" ]; then
 	mkdir pub
 fi
 
-java -jar $saxon -xi:on -o $output $recessdocbook $xsl
+if [ ! -d "pub/html" ]; then
+	mkdir pub/html
+fi
 
-echo "Published Recess DocBook to $recessdocbook"
+if [ ! -d "pub/fo" ]; then
+	mkdir pub/fo
+fi
+
+if [ ! -d "pub/pdf" ]; then
+	mkdir pub/pdf
+fi
+
+java \
+	-Djava.endorsed.dirs=$xalan  \
+    -cp "$xalan/xalan.jar;$xalan/xml-apis.jar;$xalan/xercesImpl.jar;$xsl/extensions/xalan27.jar" \
+    -Dorg.apache.xerces.xni.parser.XMLParserConfiguration=org.apache.xerces.parsers.XIncludeParserConfiguration \
+	org.apache.xalan.xslt.Process \
+    -in $input  \
+    -out $outputChunked  \
+    -xsl $xslChunked  \
+    -param use.extensions 1
+
+java \
+	-Djava.endorsed.dirs=$xalan  \
+    -cp "$xalan/xalan.jar;$xalan/xml-apis.jar;$xalan/xercesImpl.jar;$xsl/extensions/xalan27.jar" \
+    -Dorg.apache.xerces.xni.parser.XMLParserConfiguration=org.apache.xerces.parsers.XIncludeParserConfiguration \
+	org.apache.xalan.xslt.Process \
+    -in $input  \
+    -out $outputAllInOne  \
+    -xsl $xslAllInOne  \
+    -param use.extensions 1
+    
+java \
+	-Djava.endorsed.dirs=$xalan  \
+    -cp "$xalan/xalan.jar;$xalan/xml-apis.jar;$xalan/xercesImpl.jar;$xsl/extensions/xalan27.jar" \
+    -Dorg.apache.xerces.xni.parser.XMLParserConfiguration=org.apache.xerces.parsers.XIncludeParserConfiguration \
+	org.apache.xalan.xslt.Process \
+    -in $input  \
+    -out $outputFO  \
+    -xsl $xslFO  \
+    -param use.extensions 1
+    
+cd $fop
+java \
+	-jar "build/fop.jar" \
+	-fo ../../../$outputFO -pdf ../../../$outputPDF
+
+cd $base
+
+echo "Published Recess DocBook to $output"

@@ -2,7 +2,8 @@
 <book	xmlns="http://docbook.org/ns/docbook" 
 		xmlns:xi="http://www.w3.org/2001/XInclude"
 		version="5.0" 
-		xml:lang="en">
+		xml:lang="en"
+		>
 	<title>The Recess PHP Framework</title>
 	<xi:include href="01-introduction.xml" />
 	<xi:include href="02-getting-started.xml" />

@@ -9,16 +9,29 @@ fi
 cd libs
 
 # Install necessary components for Docbook Publishing
-#	1) Saxon
-#	2) Docbook XSL Stylesheets
+#	1) Xalan
+#	2) Docbook XSL NS Stylesheets
 
-# Saxon-Basic Install
-curl -o saxon.zip http://voxel.dl.sourceforge.net/sourceforge/saxon/saxonb9-1-0-6j.zip
-unzip saxon.zip -d saxon
+# Xalan Install
+if [ ! -f xalan.zip ]; then
+	echo "Downloading and extracting Xalan"
+	curl -o xalan.zip http://mirrors.ibiblio.org/pub/mirrors/apache/xml/xalan-j/xalan-j_2_7_1-bin-2jars.zip
+	unzip xalan.zip -d xalan
+fi
 
-# DocBook v5.0 XSL Stylesheets
-curl -o docbook-xsl.zip http://docbook.sourceforge.net/snapshots/docbook-xsl2-snapshot.zip
-unzip docbook-xsl.zip -d docbook-xsl
+# FOP Install
+if [ ! -f fop.zip ]; then
+	echo "Downloading and extracting FOP"
+	curl -o fop.zip http://mirrors.ibiblio.org/pub/mirrors/apache/xmlgraphics/fop/binaries/fop-0.95-bin.zip
+	unzip fop.zip -d fop
+fi
 
-echo "The DocBook tools have been installed."
+# DocBook NS XSL Stylesheets
+if [ ! -f docbook-xsl.zip ]; then
+	echo "Downloading and extracting DocBook XSL NS"
+	curl -o docbook-xsl.zip http://voxel.dl.sourceforge.net/sourceforge/docbook/docbook-xsl-ns-1.75.0.zip
+	unzip docbook-xsl.zip -d docbook-xsl
+fi
+
+echo "The DocBook XSL tools have been installed."
 echo "Publish with: ./scripts/publish.sh"
