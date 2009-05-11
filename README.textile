@@ -1,11 +1,14 @@
 h1. Recess PHP Framework Docbook Repository
 
-h2. Tools for Publishing:
+h2. Prerequisite: Java
 
-* "Saxon":http://saxon.sourceforge.net/
-* "Docbook xsl2 Stylesheets (Zip)":http://docbook.sourceforge.net/snapshots/docbook-xsl2-snapshot.zip
-* "Docbook xsl2 Stylesheets (Tarball)":http://docbook.sourceforge.net/snapshots/docbook-xsl2-snapshot.tar.bz2
+h2. Installing Publishing Tools
 
-java -jar /path/to/saxon9.jar -o output.html recess-docbook.xml /path/to/docbook-xsl2-snapshot/html/docbook.xsl
+Run the following bash scripts from within the recess-docbook directory:
+
+# ./scripts/install.sh
+# ./scripts/publish.sh
+
+This will install Xalan, Apache FOP, and DocBook XSL stylesheets.
 
 
