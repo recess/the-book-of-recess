@@ -46,7 +46,7 @@ TestController extends Controller {
 <figure>
 <title>Simple parametric routes using route $parameters</title>
 <programlisting language="php"><![CDATA[<?php
-<pre name="code" class="php">class TestController extends Controller {
+class TestController extends Controller {
     /** !Route GET, /hello/$first/$last */
     function aMethod($first, $last) {
          echo "Hello $first $last!"; exit;

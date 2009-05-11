@@ -33,5 +33,12 @@ if [ ! -f docbook-xsl.zip ]; then
 	unzip docbook-xsl.zip -d docbook-xsl
 fi
 
+# XSL Syntax Highlight
+if [ ! -f xslthl.zip ]; then
+	echo "Downloading and extracting XSLT Syntax Highlighting"
+	curl -o xslthl.zip http://voxel.dl.sourceforge.net/sourceforge/xslthl/xslthl-2.0.1.zip
+	unzip xslthl.zip -d xslthl
+fi
+
 echo "The DocBook XSL tools have been installed."
 echo "Publish with: ./scripts/publish.sh"

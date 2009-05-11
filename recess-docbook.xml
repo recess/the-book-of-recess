@@ -6,8 +6,9 @@
 		xml:lang="en"
 		>
 	<info>
-	<title>The Recess PHP Framework</title>
-	<copyright><year>2009</year><holder>The Recess Framework</holder></copyright>
+	<title>The Book of Recess</title>
+	<subtitle>Official Guide to the Recess PHP Framework</subtitle>
+	<copyright><year>2009</year><holder>The Recess PHP Framework</holder></copyright>
 	</info>
 	<xi:include href="01-introduction.xml" />
 	<xi:include href="02-getting-started.xml" />
