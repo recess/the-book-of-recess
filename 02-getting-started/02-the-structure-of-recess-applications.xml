@@ -1,6 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter xmlns="http://docbook.org/ns/docbook"
          xml:id="02.02">
-	<title>The Architecture of Recess Applications</title>
-	<para></para>
+	<title>The Structure of Recess Applications</title>
+	<para>A Recess application is broken down into three big categories of components: models, views, and controllers.</para>
+	<para>Applications are stored in their own directory structure which is by default ‘/apps’. The Recess Framework has the ability to host multiple apps simultaneously. This is different from the Ruby on Rails or CakePHP model you may be familiar with. Within the apps directory there are subdirectories for each application: ‘/apps/{appName}/’, for example: ‘/apps/myBlog/’.</para>
+	<para>Within an application’s directory the structure is as follows:
+		<itemizedlist>
+		<listitem>apps/
+			<itemizedlist>
+			<listitem>
+				myBlog/
+				<itemizedlist>
+					<listitem>models/</listitem>
+					<listitem>views/</listitem>
+					<listitem>controllers/</listitem>
+					<listitem>MyBlogApplication.class.php</listitem>
+				</itemizedlist>
+			</listitem>
+			<listitem>
+				myKillerApp/
+				<itemizedlist>
+					<listitem>models/</listitem>
+					<listitem>views/</listitem>
+					<listitem>controllers/</listitem>
+					<listitem>MyKillerAppApplication.class.php</listitem>
+				</itemizedlist>
+			</listitem>
+			</itemizedlist>
+		</listitem>
+		</itemizedlist>
+	</para>
+	<para>The ‘MyBlogApplication.class.php’ contains a class named, as you may guess, MyBlogApplication. MyBlogApplication extends from the class Application and is where application wide settings are specified.</para>
+	<para>In general the coding style of Recess encourages classes to be contained in their own file and requires these files to have the extension .class.php. This is an important convention for the Recess Library which handles the intelligent and high-performance inclusion of class files.</para>
 </chapter>

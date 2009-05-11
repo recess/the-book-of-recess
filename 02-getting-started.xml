@@ -3,4 +3,6 @@
 		 xmlns:xi="http://www.w3.org/2001/XInclude">
 	<title>Getting Started</title>
 	<xi:include href="02-getting-started/01-installing-recess.xml" />
+	<xi:include href="02-getting-started/02-the-structure-of-recess-applications.xml" />
+	<xi:include href="02-getting-started/03-hello-world.xml" />
 </part>
