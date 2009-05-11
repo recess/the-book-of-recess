@@ -1,6 +1,404 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter xmlns="http://docbook.org/ns/docbook"
-         xml:id="04.08">
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink"
+	xml:id="04.08">
 	<title>Relationships Between Models</title>
-	<para></para>
+<indexterm>
+	<primary>Relationships</primary>
+</indexterm>
+<indexterm>
+	<primary>Models</primary>
+	<secondary>Relationships</secondary>
+	<see>Relationships</see>
+</indexterm>
+	<section>
+		<title>A Preview</title>
+
+		<para>
+			Lets say we need a controller method that is given a user
+			<varname>$id</varname>
+			and
+			<varname>$keyword</varname>. The method will find the tags of all posts whose title contains
+			<varname>$keyword</varname>
+			that was written by the user with id of
+			<varname>$id</varname>.
+		</para>
+<indexterm>
+	<primary>Relationships</primary>
+	<secondary>Querying</secondary>
+</indexterm>
+		<figure>
+			<title>Querying across relationships</title>
+			<programlisting language="php"><![CDATA[<?php
+/** !Route GET, user/$id/keyword/$keyword/tags */
+function getTagsForUserByPostTitleKeyword($id, $keyword) {
+	$this->user = new User($id);
+	$this->tags = $user
+					->posts()
+					->like('title',"%$keyword%")
+					->tags();
+}]]></programlisting>
+		</figure>
+
+		<para>In a view we can iterate through the tags with a simple
+			foreach:</para>
+
+		<figure>
+			<title>Iterating through a query's results</title>
+			<programlisting language="php"><![CDATA[<?php
+foreach($tags as $tag) {
+	echo $tag->name, '<br />';
+}]]></programlisting>
+		</figure>
+
+		<para>
+			Now, let's look at the code for the
+			<classname>User</classname>,
+			<classname>Post</classname>, and
+			<classname>Tag</classname>
+			models that make the above code snippet possible.
+		</para>
+
+		<figure>
+			<title>Relationships between classes</title>
+			<programlisting language="php"><![CDATA[<?php
+/** !HasMany posts */
+class User extends Model { }
+
+/** 
+ * !BelongsTo user
+ * !HasMany tags, Through: PostsTags
+ */
+class Post extends Model { }
+
+/**
+ * !HasMany posts, Through: PostsTags
+ */
+class Tag extends Model { }
+
+/**
+ * This model represents the join table between the many-to-many
+ * Posts <-> Tags relationship.
+ *
+ * !BelongsTo post
+ * !BelongsTo tag
+ */
+class PostsTags extends Model { }
+]]></programlisting>
+		</figure>
+	</section>
+
+	<section>
+		<title>Relationships</title>
+
+		<para>
+			A
+			<classname>Post</classname>
+			belongs to a
+			<classname>User</classname>
+			and has many
+			<classname>Tags</classname>.
+			Lets take another look at how this is represented using
+			annotations:
+		</para>
+
+		<figure>
+			<title>
+				<literal>!HasMany</literal>
+				and
+				<literal>!BelongsTo</literal>
+				on a
+				<classname>Post</classname>
+			</title>
+			<programlisting language="php"><![CDATA[<?php
+/**
+ * !BelongsTo user, Key: authorId
+ * !HasMany tags, Through: PostTag
+ */
+class Post extends Model { /** Stripped for Brevity */ }
+?>]]></programlisting>
+		</figure>
+
+		<para>
+			The
+			<literal>!BelongsTo</literal>
+			annotation denotes the 'one' side of a one-to-many relationship. We
+			specify some additional information using the
+			<literal>Key</literal>
+			modifier to say that the foreign key column name is actually
+			<literal>authorId</literal>
+			instead of
+			<literal>userId</literal>
+			which is what it would be by convention. With a belongs to
+			relationship
+			<classname>Post</classname>
+			has an attached method of
+			<methoname>user()</methoname>
+			which will return the
+			<classname>User</classname>
+			model a
+			<classname>Post</classname>
+			is associated with. It also adds attached methods for setting and
+			unsetting the user:
+			<methodname>setUser($user)</methodname>
+			<methodname>unsetUser()</methodname>.
+			Attached methods are a low-level feature of Recess written in
+			<classname>Object</classname>
+			which allow methods to be added to classes dynamically at run time.
+		</para>
+
+		<para>
+			The
+			<literal>!HasMany</literal>
+			annotation is a special variant of
+			<literal>!HasMany</literal>
+			because it uses the
+			<literal>Through</literal>
+			modifier. This tells the
+			<literal>HasMany</literal>
+			relationship to use a join table thus making it a many-to-many
+			relationship instead of a one-to-many. The
+			<literal>!HasMany</literal>
+			annotation attaches the following methods to the Post class:
+			<methodname>tags()</methodname> , <methodname>addToTags($tag)</methodname>, and <methodname>removeFromTags($tag)</methodname>.
+		</para>
+	</section>
+
+	<section>
+		<title>Naming Conventions</title>
+<indexterm>
+	<primary>Relationships</primary>
+	<secondary>Naming Conventions</secondary>
+</indexterm>
+		<para>In Recess Models use a variation on the ActiveRecord pattern
+			to provide an Object-Relational Mapping facility in the Recess
+			Framework.</para>
+
+		<section>
+			<title>Model to Table</title>
+
+			<para>
+				The assumed table name is the
+				<emphasis>Model's class name in lowercase</emphasis>
+				. To override this add a
+				<literal>!Table [table_name]</literal>
+				annotation to your model. When providing your own name for the table
+				be sure to follow the case-sensitivity expectations of your RDBMS &amp; OS <link xl:href="http://dev.mysql.com/doc/refman/5.0/en/identifier-case-sensitivity.html">MySql</link>.</para>
+
+<figure>
+<title>Default naming conventions for Model Class -> Table</title>
+<programlisting language="php"><![CDATA[<?php
+class Post extends Model {} // Table: post
+class Person extends Model {} // Table: person
+]]></programlisting></figure>
+
+<figure>
+<title>Overriding the default naming convention of Model Class -> Table</title>
+<programlisting language="php"><![CDATA[<?php
+/** !Table posts */
+class Post extends Model {} // Table: posts
+
+/** !Table people */
+class Person extends Model {} // Table: people
+]]></programlisting></figure>
+</section>
+
+<section>
+<title><literal>!BelongsTo</literal> Relationship</title>
+<indexterm>
+	<primary>!BelongsTo</primary>
+</indexterm>
+<indexterm>
+	<primary>Relationships</primary>
+	<secondary>!BelongsTo</secondary>
+	<see>!BelongsTo</see>
+</indexterm>
+
+<figure>
+<title>Example naming convention for <literal>!BelongsTo</literal></title>
+<programlisting language="php"><![CDATA[<?php
+/** !BelongsTo person */
+class Post extends Model {}
+
+class Person extends Model {}
+
+$post->person(); // querying the relationship
+]]></programlisting></figure>
+
+<table>
+	<title>Variables used in following table</title>
+	<tgroup cols="2" alignt="left" colsep="1" rowsep="1">
+		<thead>
+			<row><entry>Variable</entry><entry>Value</entry></row>
+		</thead>
+		<tbody>
+			<row><entry>BelongsToName</entry><entry>person</entry></row>
+		</tbody>
+	</tgroup>
+</table>
+
+<table>
+	<title>Naming conventions for <literal>!BelongsTo</literal></title>
+	<tgroup cols="4" alignt="left" colsep="1" rowsep="1">
+		<thead>
+			<row><entry>For</entry><entry>Convention</entry><entry>Example</entry><entry>Override</entry></row>
+		</thead>
+		<tbody>
+			<row><entry>Related Class</entry><entry><methodname>ucfirst</methodname>( <varname>BelongsToName</varname> )</entry><entry><classname>Person</classname></entry><entry><literal>Class: ClassName</literal></entry></row>
+			<row><entry>Foreign Key</entry><entry><varname>BelongsToName</varname> . <literal>'Id'</literal></entry><entry><classname>personId</classname></entry><entry><literal>Key: ColumnName</literal></entry></row>
+		</tbody>
+	</tgroup>
+</table>
+
+<figure>
+<title>Example overriding <literal>!BelongsTo</literal> conventions</title>
+<programlisting language="php"><![CDATA[<?php
+/** !BelongsTo author, Class: Person, Key: personId */
+class Post extends Model {}
+
+class Person extends Model {}
+
+// usage:
+$post->author();
+]]></programlisting></figure>
+</section>
+
+<section>
+<title><literal>!HasMany</literal> Relationship</title>
+<indexterm>
+	<primary>!HasMany</primary>
+</indexterm>
+<indexterm>
+	<primary>Relationships</primary>
+	<secondary>!HasMany</secondary>
+	<see>!HasMany</see>
+</indexterm>
+
+<figure>
+<title>Example naming convention for <literal>!HasMany</literal></title>
+<programlisting language="php"><![CDATA[<?php
+/** !BelongsTo author, Class: Person, Key: personId */
+class Post extends Model {}
+
+/** !HasMany post */
+class Person extends Model {}
+
+$person->post(); // usage
+]]></programlisting></figure>
+
+<table>
+	<title>Variables used in following table</title>
+	<tgroup cols="2" alignt="left" colsep="1" rowsep="1">
+		<thead>
+			<row><entry>Variable</entry><entry>Value</entry></row>
+		</thead>
+		<tbody>
+			<row><entry>HasManyName</entry><entry><literal>post</literal></entry></row>
+			<row><entry>Class</entry><entry><classname>Person</classname></entry></row>
+		</tbody>
+	</tgroup>
+</table>
+
+<table>
+	<title>Naming conventions for <literal>!HasMany</literal></title>
+	<tgroup cols="4" alignt="left" colsep="1" rowsep="1">
+		<thead>
+			<row><entry>For</entry><entry>Convention</entry><entry>Example</entry><entry>Override</entry></row>
+		</thead>
+		<tbody>
+			<row><entry>Related Class</entry><entry><methodname>ucfirst</methodname>( <varname>HasManyName</varname> )</entry><entry><classname>Post</classname></entry><entry><literal>Class: ClassName</literal></entry></row>
+			<row><entry>Foreign Key</entry><entry><methodname>lcfirst</methodname>( <varname>Class</varname> ) . <literal>'Id'</literal></entry><entry><classname>personId</classname></entry><entry><literal>Key: ColumnName</literal></entry></row>
+		</tbody>
+	</tgroup>
+</table>
+
+<figure>
+<title>Example overiding naming convention for <literal>!HasMany</literal></title>
+<programlisting language="php"><![CDATA[<?php
+/** !BelongsTo author, Class: Person, Key: personId */
+class Post extends Model {}
+
+/** !HasMany posts, Class: Post, To: author */
+class Person extends Model {}
+
+// usage:
+$author->posts();
+]]></programlisting></figure>
+</section>
+
+<section>
+<title><literal>!HasMany, Through</literal> Relationship</title>
+<indexterm>
+	<primary>!HasMany, Through</primary>
+</indexterm>
+<indexterm>
+	<primary>Relationships</primary>
+	<secondary>!HasMany, Through</secondary>
+	<see>!HasMany, Through</see>
+</indexterm>
+
+<figure>
+<title>Example naming conventions for <literal>!HasMany, Through</literal></title>
+<programlisting language="php"><![CDATA[<?php
+/** 
+ * !BelongsTo author, Class: Person, Key: personId
+ * !HasMany tag, Through: TagsPosts
+ **/
+class Post extends Model {}
+
+/** !HasMany post, Through: TagsPosts */
+class Tag extends Model {}
+
+/** !BelongsTo post */
+/** !BelongsTo tag */
+class TagsPosts extends Model {}
+// usage:
+$post->tag();
+]]></programlisting></figure>
+
+<table>
+	<title>Variables used in following table</title>
+	<tgroup cols="2" alignt="left" colsep="1" rowsep="1">
+		<thead>
+			<row><entry>Variable</entry><entry>Value</entry></row>
+		</thead>
+		<tbody>
+			<row><entry>HasManyName</entry><entry><literal>tag</literal></entry></row>
+			<row><entry>Class</entry><entry><classname>Post</classname></entry></row>
+			<row><entry>ThroughClass</entry><entry><classname>TagsPosts</classname></entry></row>
+		</tbody>
+	</tgroup>
+</table>
+
+<table>
+	<title>Naming conventions for <literal>!HasMany, Through</literal></title>
+	<tgroup cols="4" alignt="left" colsep="1" rowsep="1">
+		<thead>
+			<row><entry>For</entry><entry>Convention</entry><entry>Example</entry><entry>Override</entry></row>
+		</thead>
+		<tbody>
+			<row><entry>Related Class</entry><entry><methodname>ucfirst</methodname>( <varname>HasManyName</varname> )</entry><entry><classname>Tag</classname></entry><entry><literal>Class: ClassName</literal></entry></row>
+			<row><entry>Through Class</entry><entry><classname>ThroughClass</classname></entry><entry><classname>TagsPosts</classname></entry><entry><literal>Through: ThroughClass</literal></entry></row>
+			<row><entry>Through's From Rltn</entry><entry><methodname>lcfirst</methodname>( <varname>Class</varname> )</entry><entry><classname>post</classname></entry><entry><literal>Through: ClassName, From: localRelation</literal></entry></row>
+			<row><entry>Through's To Rltn</entry><entry><classname>HasManyName</classname></entry><entry><classname>tag</classname></entry><entry><literal>Through: Classname, To: foreignRelation</literal></entry></row>
+		</tbody>
+	</tgroup>
+</table>
+
+<figure>
+<title>Example of overriding naming conventions for <literal>!HasMany, Through</literal></title>
+<programlisting language="php"><![CDATA[<?php
+/** !HasMany tags, Through: TagsPosts, From: postRltn, To: tagRltn */
+class Post extends Model {}
+
+/** !HasMany posts, Through: TagsPosts, From: tagRltn, To: postRltn */
+class Tag extends Model {}
+
+/** !BelongsTo postRltn, Class: Post, Key: post_id */
+/** !BelongsTo tagRltn, Class: Tag, Key: tag_id */
+class TagsPosts extends Model { }
+// usage:
+$post->tags();
+]]></programlisting></figure>
+</section>
+</section>
 </chapter>

@@ -7,7 +7,7 @@
 	<xi:include href="04-the-recess-framework/03-routing-requests.xml" />
 	<xi:include href="04-the-recess-framework/04-controller.xml" />
 	<xi:include href="04-the-recess-framework/05-views.xml" />
-	<xi:include href="04-the-recess-framework/06-helpers.xml" />
+	<xi:include href="04-the-recess-framework/06-helpers.xml" /> 
 	<xi:include href="04-the-recess-framework/07-models.xml" />
 	<xi:include href="04-the-recess-framework/08-model-relationships.xml" />
 	<xi:include href="04-the-recess-framework/09-plugins.xml" />

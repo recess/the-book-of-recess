@@ -1,6 +1,253 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter xmlns="http://docbook.org/ns/docbook"
-         xml:id="04.07">
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink"
+	xml:id="04.07">
 	<title>Models</title>
-	<para></para>
+<indexterm>
+	<primary>Models</primary>
+</indexterm>
+	<!--  BEGIN SECTION: Generating Models with Recess Tools -->
+	<section>
+		<title>Generating Models with Recess Tools</title>
+<indexterm>
+	<primary>Models</primary>
+	<secondary>Generating</secondary>
+</indexterm>
+		<para>The Recess Framework includes a web app to aid development
+			called 'Recess Tools'. Generating new Models for an application and
+			creating corresponding tables in the database is quick work. By
+			browsing to your application and selecting 'new' Model you'll be
+			taken to the new Model helper. After providing a name, table
+			information, and properties the model and, if needed, table will be
+			generated.</para>
+
+		<para>
+			A quick peak at the code generated for
+			<classname>Post</classname>
+			:
+		</para>
+
+		<figure>
+			<title>
+				<classname>Post</classname>
+				is simple Recess
+				<classname>Model</classname>
+			</title>
+			<programlisting language="php"><![CDATA[<?php
+/**
+ * !Database Default
+ * !Table posts
+ */
+class Post extends Model {
+	/** !Column PrimaryKey, Integer, AutoIncrement */
+	public $id;
+ 
+	/** !Column String */
+	public $title;
+ 
+	/** !Column String */
+	public $body;
+ 
+	/** !Column Integer */
+	public $authorId;
+ 
+}?>]]></programlisting>
+		</figure>
+
+		<para>Lots of annotations! Why so many? Being explicit is a good
+			thing- especially when you don't have to do any of the extra writing.
+			Starting from the top: the Database annotation is what allows Recess
+			to have Models from multiple data sources in a single app. The Table
+			annotation is straightforward: the name of the table in the database
+			the Model maps to. Following is a HasMany relationship using a join
+			table with the Through argument. For Rails folks this should look
+			decently familiar. More to come on relationships.</para>
+		<indexterm>
+			<primary>Models</primary>
+			<secondary>!Column</secondary>
+			<see>!Column</see>
+		</indexterm>
+		<indexterm>
+			<primary>!Column</primary>
+		</indexterm>
+		<para>
+			Each property uses a
+			<literal>!Column</literal>
+			annotation to provide additional semantic typing information.
+			Specifying properties and column mappings is optional in Recess but
+			it is encouraged for three reasons. One, you can look at a Model's
+			code and know exactly which properties are available. This is
+			different from Rails or Cake
+			models. Two, Recess checks to ensure your annotations and the
+			database types match. Three, Recess can regenerate tables from Models
+			marked up with annotations.
+		</para>
+
+	</section>
+	<!-- END SECTION: Generating Models with Recess Tools -->
+	<!-- BEGIN SECTION: Querying Models -->
+	<section>
+		<title>Querying Models</title>
+		<indexterm>
+			<primary>Models</primary>
+			<secondary>Querying</secondary>
+		</indexterm>
+		<para>
+			Queries are constructed using a simple API. They're also lazy so
+			queries are not executed until you need the results. The following
+			are some example queries we could perform with the
+			<classname>Post</classname>
+			model:
+		</para>
+
+		<figure>
+			<title>
+				Querying the
+				<classname>Post</classname>
+				Model
+			</title>
+			<programlisting language="php"><![CDATA[<?php
+
+$post = new Post();
+
+$allPosts = $post->all(); // Select all Posts
+
+$postsWithPhp = $allPosts->like('title', '%PHP%');
+
+$lastFivePhpPosts = $postsWithPhp->orderBy('id DESC')->limit(5);
+// Logically equivalent to:
+$lastFivePhpPosts = $allPosts
+						->orderBy('id DESC')
+						->limit(5)
+						->like('title', '%PHP%');
+
+$postWithAuthorId5 = $post->equal('authorId', 5);
+]]></programlisting>
+		</figure>
+
+		<para>
+			The
+			<methodname>all()</methodname>
+			method is essentially a
+			<literal>SELECT *</literal>
+			on
+			<classname>Post</classname>
+			's table. Notice how we can take the result of
+			<methodname>all()</methodname>
+			and continue refining our query with a LIKE clause on line 3. As
+			mentioned above, Recess Models use lazy evaluation. The code above
+			would not issue any SQL queries unless later in code the results were
+			accessed in a
+			<literal>foreach</literal>
+			loop or with the array index syntax (i.e.
+			<varname>$postsWithAuthorId[0]</varname>
+			). Other simple query operators include:
+			<methodname>notEqual</methodname>
+			,
+			<methodname>between</methodname>
+			,
+			<methodname>greaterThan</methodname>
+			,
+			<methodname>greaterThanOrEqualTo</methodname>
+			,
+			<methodname>lessThan</methodname>
+			,
+			<methodname>lessThanOrEqualTo</methodname>
+			,
+			<methodname>notLike</methodname>
+			.
+		</para>
+
+	</section>
+	<!-- END SECTION: Querying Model -->
+
+	<!-- BEGIN SECTION: Persisting -->
+	<section>
+		<title>
+			Persisting
+			<classname>Model</classname>
+			state with
+			<methodname>insert</methodname>
+			,
+			<methodname>update</methodname>
+			,
+			<methodname>save</methodname>
+			,
+			<methodname>delete</methodname>
+		</title>
+
+		<para>
+			Persisting changes is as simple as calling
+			<methodname>save</methodname>
+			() for
+			<literal>INSERT</literal>
+			s or
+			<literal>UPDATE</literal>
+			s and
+			<methodname>delete</methodname>
+			() for
+			<literal>DELETE</literal>
+			s. Let's take a look:
+		</para>
+
+		<figure>
+			<title>
+				Persisting changes with
+				<methodname>save</methodname>
+				and
+				<methodname>delete</methodname>
+			</title>
+			<indexterm>
+				<primary>Models</primary>
+				<secondary>Persisting</secondary>
+			</indexterm>
+			<indexterm>
+				<primary>Models</primary>
+				<secondary>save()</secondary>
+			</indexterm>
+			<indexterm>
+				<primary>Models</primary>
+				<secondary>insert()</secondary>
+			</indexterm>
+			<indexterm>
+				<primary>Models</primary>
+				<secondary>update()</secondary>
+			</indexterm>
+			<indexterm>
+				<primary>Models</primary>
+				<secondary>delete()</secondary>
+			</indexterm>
+			<programlisting language="php"><![CDATA[<?php
+$post = new Post();
+$post->title = 'Hello World';
+$post->body = 'Welcome to Models in Recess!';
+$post->save(); // internally calls $post->insert()
+$post->title = 'Hello World! With a Bang!';
+$post->save(); // internally calls $post->update()
+echo 'New Post ID: ', $post->id;
+
+$oldPost = new Post(10); // Post with ID 10
+if($oldPost->exists()) {
+	$oldPost->delete();
+}
+
+$postsWithRuby = new Post();
+$postsWithRuby->like('title', '%Ruby%')->delete();
+?>]]></programlisting>
+		</figure>
+
+		<para>
+			In lines 1-7 a new
+			<classname>Post</classname>
+			is created saved and updated with some filler values. Lines 9-12
+			delete a
+			<classname>Post</classname>
+			with an ID of 10. Finally lines 14-15 delete all posts containing
+			'Ruby' in the title. Recess has support for cascading deletes across
+			relationships which is discussed in the following chapter, Model
+			Relationships.
+		</para>
+
+	</section>
+	<!-- END SECTION: Persisting -->
+	
 </chapter>

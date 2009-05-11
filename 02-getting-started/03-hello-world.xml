@@ -163,8 +163,6 @@ class HelloWorldApplication extends Application {
 	}
 }
 ?>]]></programlisting>
-
-<title>An <classname>Application</classname> Class</title>
 </figure>
 <para>Now that the <classname>HelloWorldApplication</classname> class is setup our last step is to 'install' the application into the <filename>recess-conf.php</filename> file. Within <filename>recess-conf.php</filename> there is an array of strings named <token>RecessConf::$applications</token>. These strings point to application classes in the class path. The apps folder is in the Library's class path so we can reference the newly created <classname>HelloWorldApplication</classname> using <token>'helloWorld.HelloWorldApplication'</token>. If we were to put the <classname>HelloWorldApplication</classname> class in a subdirectory called <filename class="directory">app</filename> within the <filename class="directory">helloWorld</filename> subdirectory the fully-qualified class name would be <classname>helloWorld.app.HelloWorldApplication</classname>. The convention of single classes per file and directories being broken up with dots is an influence from Java/C# namespacing. <classname>Library</classname> is covered in later documentation.</para>
 </section>
