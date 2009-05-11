@@ -5,7 +5,9 @@
 <title>Hello World</title>
 
 <section xml:id="02.03.recess-tools">
+
 <title>Starting an Application with Recess Tools</title>
+
 <indexterm>
 	<primary>Recess Tools</primary>
 </indexterm>
@@ -100,7 +102,7 @@
 	</mediaobject>
 </figure>
 
-<para>The routes section shows us which URLs our application will respond to and which method in a controller is being mapped. We can see the url <url>helloWorld/</url> will call the <token>index</token> method in our <classname>HelloWorldHomeController</classname> class. In a new tab try navigating to the location you installed Recess followed by <literal>/helloWorld/</literal> (probably <literal>http://localhost/helloWorld/</literal>). You should be greeted with the default new application landing page:</para>
+<para>The routes section shows us which URLs our application will respond to and which method in a controller is being mapped. We can see the url <literal>helloWorld/</literal> will call the <token>index</token> method in our <classname>HelloWorldHomeController</classname> class. In a new tab try navigating to the location you installed Recess followed by <literal>/helloWorld/</literal> (probably <literal>http://localhost/helloWorld/</literal>). You should be greeted with the default new application landing page:</para>
 
 <figure>
 	<title>The Generated Hello World Application</title>
@@ -116,10 +118,12 @@
 
 <section>
 <title>Creating a New Application Manually</title>
+
 <indexterm>
 	<primary>Application</primary>
 	<secondary>create manually</secondary>
 </indexterm>
+
 <note>
 	<title>Note: This Section is Details Oriented</title>
 	<para>This section describes the files that Recess Tools will create automatically when starting an application. You can safely skip this section if you are not interested in those details right now.</para>
@@ -145,6 +149,7 @@ Now create the following 'views' and 'controllers' sub-directories so your struc
 </para>
 <para>After creating the directory structure, <emphasis>the next step is creating a sub-class of <classname>Application</classname></emphasis>. This class holds settings specific to the application such as the location of views in the directory structure and the prefix of models and controllers in the class path. In the <filename class="directory">apps/helloWorld/</filename> directory create a new file named <filename>HelloWorldApplication.class.php</filename>. The '.class.php' extension is an important distinction for the Recess Library to know the file contains a PHP class named <classname>HelloWorldApplication</classname>. The class should be specified as follows:</para>
 <figure>
+<title>The <classname>HelloWorldApplication</classname></title>
 <programlisting language="php"><![CDATA[<?php
 Library::import('recess.framework.Application');
 
@@ -166,21 +171,29 @@ class HelloWorldApplication extends Application {
 
 <section>
 <title>The <classname>Controller</classname> &amp; <classname>View</classname></title>
-
+<indexterm>
+	<primary><classname>Controller</classname></primary>
+	<secondary>Basics</secondary>
+</indexterm>
 <para>In Recess a <indexterm><primary><classname>Controller</classname></primary></indexterm> is an object responsible for taking a web request, invoking the intended logic in a <classname>Model</classname>, and then selecting a <classname>View</classname> which will generate the response, likely in <acronym>HTML</acronym>, to be sent back to the client.</para>
 
 <para>Having kicked-off a <classname>HelloWorldApplication</classname> in <link linkend="02.03.recess-tools">Recess Tools</link>, let's take a quick look at some basic concepts.</para>
 
 <para>In an <filename class="directory">apps/helloWorld</filename> directory there is a subdirectory <filename class="directory">controllers</filename> where <classname>Controller</classname>s are placed. Creating a new controller involves creating a new PHP file containing a class which extends <classname>Controller</classname>. Here is an example:</para>
 
+<figure>
+<title>A functionless <classname>Controller</classname></title>
 <programlisting language="php"><![CDATA[<?php
 class HelloWorldController extends Controller { }
 ?>]]></programlisting>
+</figure>
 
 <para>The file will be named <filename>HelloWorldController.class.php</filename>. The <literal>.class.php</literal> extension is important in Recess because it implies to the Recess <classname>Library</classname> that the file has only classes defined in it.</para>
 
 <para>Let's add some functionality to the controller. We will begin by adding a simple method to print <literal>'Hello World'</literal> and exit.</para>
- 
+
+<figure>
+<title>Hello World! in Recess</title>
 <programlisting language="php"><![CDATA[<?php
 class HelloWorldController extends Controller {
 	function printIt() {
@@ -188,6 +201,7 @@ class HelloWorldController extends Controller {
 	}
 }
 ?>]]></programlisting>
+</figure>
 
 <para>If we now navigate to <token>helloWorld/printIt</token> we will see 'Hello World!' printed. How did the request for <token>helloWorld/printIt</token> wind up getting mapped to the <token>printIt</token> method? This process is called <token>Routing</token>.</para>
 
@@ -197,6 +211,10 @@ class HelloWorldController extends Controller {
 </section>
 <section>
 <title>The <classname>Request</classname> Object</title> 
+
+<indexterm>
+	<primary><classname>Request</classname> Object</primary>
+</indexterm>
 
 <para>An HTTP request contains a variety of information: variables, headers, cookies, a URL, etc. Routing takes care of mapping an HTTP method (<literal>GET</literal>/<literal>POST</literal>/<literal>PUT</literal>/<literal>DELETE</literal>) to a controller method. Within your controller method you'll likely need to perform logic based on information in the request. <classname>Controller</classname>s have a <classname>Request</classname> object which can be referenced using <literal>$this->request</literal>. Let's take a look:</para>
 
@@ -218,9 +236,18 @@ class HelloWorldController extends Controller {
 
 <section>
 <title>The <classname>Controller</classname>-<classname>View</classname> Relationship</title>
-
+<indexterm>
+	<primary><classname>Controller</classname></primary>
+	<secondary>Relationship with Views</secondary>
+</indexterm>
+<indexterm>
+	<primary><classname>View</classname></primary>
+	<secondary>Basics</secondary>
+</indexterm>
 <para>A Controller is responsible for indicating which view template to use. If no response is returned from a controller method the default view template will be <filename>nameOfTheControllerMethod.php</filename> in the <filename class="directory">views/</filename> directory. Try removing the body of the <methodname>printIt</methodname> method and refresh to get an error indicating no view template at <filename>helloWorld/views/printIt.php</filename> can be found. To change the view template file we can use the <methodname>ok</methodname> helper method.</para>
 
+<figure>
+<title>Returning an HTTP OK response and hinting the view template.</title>
 <programlisting language="php"><![CDATA[<?php
 class HelloWorldController extends Controller {
 	function printIt() {
@@ -228,15 +255,19 @@ class HelloWorldController extends Controller {
 	}
 }
 ?>]]></programlisting>
+</figure>
 
 <para>After refreshing the error message will change to indicate the new location <filename>helloWorld/views/the-view.php</filename>. The <methodname>ok</methodname> helper method will be discussed soon. Let's create a new file named <filename>the-view.php</filename> with the content below and save it into the views folder:</para>
 
+<figure>
+<title>A simple view template.</title>
 <programlisting language="php"><![CDATA[<html>
 	<head><title>Hello World View</title></head>
 	<body>
 		<?php echo 'Hello World!'; ?>
 	</body>
 </html>]]></programlisting>
+</figure>
 
 <para>Try refreshing, you should see 'Hello World!'. Lets pass some variables from the Controller to the View Template.</para>
 
@@ -269,6 +300,10 @@ class HelloWorldController extends Controller {
 
 <para>When writing view templates a great trick to quickly see what variables are available is to force an error in the view and look at the Recess Diagnostics screen. Try replacing the <literal>for</literal> loop in your view template with this code:</para>
 
+<indexterm>
+	<primary><classname>Diagnostics</classname></primary>
+</indexterm>
+
 <figure>
 <title>An error in a view template invokes Recess Diagnostics</title> 
 <programlisting language="php"><![CDATA[<html>
@@ -283,12 +318,23 @@ class HelloWorldController extends Controller {
 
 </section>
 <section>
-<title>The <classname>Response</classname> Object</title>
+<title>The <classname>Response</classname></title>
+<indexterm>
+	<primary><classname>Response</classname></primary>
+</indexterm>
 
 <para><classname>Controller</classname> methods are allowed to return either nothing at all or a <classname>Response</classname> object. When a controller method does not return anything Recess assumes an <classname>OkResponse</classname> is intended with a view template that has the same name as the controller method. The 'Ok' prefix of <classname>OkResponse</classname> corresponds to the HTTP <literal>200 OK</literal> response code. A Recess <classname>Response</classname> object contains the information Recess needs to respond to a request including: the response code, data to be passed to the view, headers to be sent back, cookies, a reference to the request, and some additional meta data used by Recess.</para>
 
 <para>In the base <classname>AbstractController</classname> class there are a number of helper methods which will import and instantiate a response for you. The <methodname>ok</methodname> method is an example of a helper method which returns an <classname>OkResponse</classname>. Other helpers include: <methodname>conflict</methodname>, <methodname>redirect</methodname>, <methodname>forwardOk</methodname>, <methodname>forwardNotFound</methodname>, <methodname>created</methodname>, and <methodname>unauthorized</methodname>. The <methodname>forward</methodname>ing responses are a special kind of <classname>Response</classname>.</para>
 
+<indexterm>
+	<primary><classname>ForwardingResponse</classname></primary>
+	<see>Response</see>
+</indexterm>
+<indexterm>
+	<primary><classname>Response</classname></primary>
+	<secondary><classname>ForwardingResponse</classname></secondary>
+</indexterm>
 <para>A <classname>ForwardingResponse</classname> causes Recess to handle another request and sends the body of that response to the client. For example, imagine you would like to build a PHP REST interface for creating Posts. After creating a Post you would like to send a <literal>201 CREATED</literal> response that contains a <literal>Location</literal> header informing the client where to find that resource. For web browsers you likely want to send back meaningful content, perhaps the new list of Posts. In Recess this would look like:</para>
 
 <figure>
@@ -319,7 +365,14 @@ class PostsController extends Controller {
 <section>
 
 <title>The <literal>urlTo</literal> Helper</title>
- 
+<indexterm>
+	<primary><methodname>urlTo</methodname></primary>
+	<see>Controller</see>
+</indexterm>
+<indexterm>
+	<primary><classname>Controller</classname></primary>
+	<secondary><methodname>urlTo</methodname> method</secondary>
+</indexterm>
 <para>Introducing dependencies on specific URLs in your controllers (and views!) is a bad practice because these URLs may change due to refactoring. Recess decouples this knowledge by providing a helper method that returns the URL to a controller method. Lets take another stab at the <classname>PostsController</classname> using <methodname>urlTo</methodname>.</para>
 
 <figure>

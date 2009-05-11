@@ -10,7 +10,7 @@
 			<orderedlist>
 				<title>Minimum requirements:</title>
 				<listitem>Apache 2.x</listitem>
-				<listitem>PHP >5.2.3</listitem>
+				<listitem>PHP > 5.2.4</listitem>
 			</orderedlist>
 			<orderedlist>
 				<title>Recommended requirements:</title>
@@ -22,15 +22,53 @@
 		</para>
 	</section>
 	<section>
-		<title>Downloading Recess</title>
+		<title>Downloading &amp; Installing Recess</title>
+		<indexterm>
+			<primary>Install</primary>
+			<secondary>release</secondary>
+		</indexterm>
+		<indexterm>
+			<primary>Install</primary>
+			<secondary>from GitHub</secondary>
+		</indexterm>
 		<para>
 		Recess can be downloaded from the <link xl:href="http://www.recessframework.org/">Recess PHP Framework Web Site</link>.
 		</para>
 		<para>
-		For the Edge Development branch the Recess Framework source tree is hosted at GitHub.
+		For the Edge Development branch the Recess Framework source tree is hosted at GitHub at <link xl:href="http://github.com/recess/recess">http://github.com/recess/recess</link>.
 		</para>
+		
+		<figure>
+		<title>Steps to Install Recess</title>
+		<orderedlist>
+		<listitem>Unzip contents into your web documents path (i.e. public_html)</listitem>
+		<listitem>On a development machine make these directories writeable by PHP:
+			<itemizedlist>
+				<listitem>apps/</listitem>
+				<listitem>data/temp/</listitem>
+				<listitem>data/sqlite/</listitem>
+			</itemizedlist>
+		</listitem>
+		<listitem>Open recess-conf.php and set RecessConf::$defaultDatabase
+			<itemizedlist>
+			<listitem>If using MySQL: Uncomment the ‘mysql:...’ line and fill in DBNAME/USER/PASS</listitem>
+			<listitem>If using Sqlite: Uncomment the ‘sqlite:...’ line and name the database</listitem>			
+			</itemizedlist>
+		</listitem>
+		<listitem>Do you have mod_rewrite?
+			<itemizedlist>
+			<listitem>Yes: Open your browser to the location you unzipped</listitem>
+			<listitem>No: Open your browser to the location you unzipped followed by index.php</listitem>
+			</itemizedlist>
+		</listitem>
+		<listitem>If you see “Welcome to Recess!” we’re ready to rock.</listitem>
+		<listitem>The URL you are currently at will be referenced {$installUrl}</listitem>
+		</orderedlist>
+		</figure>
+	</section>
+	<section>
+		<title>Recess Release Log</title>	
 		<itemizedlist>
-			<title>Release Log</title>
 			<listitem>
 				<itemizedlist>
 					<title>Version 0.12 on 2009-03-31</title>
@@ -65,32 +103,5 @@
 				</itemizedlist>
 			</listitem>
 		</itemizedlist>
-	</section>
-	<section>
-		<title>Getting Setup</title>
-		<orderedlist>
-		<listitem>Unzip contents into your web documents path (i.e. public_html)</listitem>
-		<listitem>On a development machine make these directories writeable by PHP:
-			<itemizedlist>
-				<listitem>apps/</listitem>
-				<listitem>data/temp/</listitem>
-				<listitem>data/sqlite/</listitem>
-			</itemizedlist>
-		</listitem>
-		<listitem>Open recess-conf.php and set RecessConf::$defaultDatabase
-			<itemizedlist>
-			<listitem>If using MySQL: Uncomment the ‘mysql:...’ line and fill in DBNAME/USER/PASS</listitem>
-			<listitem>If using Sqlite: Uncomment the ‘sqlite:...’ line and name the database</listitem>			
-			</itemizedlist>
-		</listitem>
-		<listitem>Do you have mod_rewrite?
-			<itemizedlist>
-			<listitem>Yes: Open your browser to the location you unzipped</listitem>
-			<listitem>No: Open your browser to the location you unzipped followed by index.php</listitem>
-			</itemizedlist>
-		</listitem>
-		<listitem>If you see “Welcome to Recess!” we’re ready to rock.</listitem>
-		<listitem>The URL you are currently at will be referenced {$installUrl}</listitem>
-		</orderedlist>
 	</section>
 </chapter>

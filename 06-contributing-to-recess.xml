@@ -3,7 +3,7 @@
 	  xmlns:xi="http://www.w3.org/2001/XInclude">
 	<title>Contributing to Recess</title>
 	<xi:include href="06-contributing-to-recess/01-forking-on-github.xml" />
-	<xi:include href="06-contributing-to-recess/02-cloning-your-fork.xml" />
+	<xi:include href="06-contributing-to-recess/02-setting-up-phpunit.xml" />
 	<xi:include href="06-contributing-to-recess/03-useful-git-commands.xml" />
 	<xi:include href="06-contributing-to-recess/04-submitting-bug-reports.xml" />
 	<xi:include href="06-contributing-to-recess/05-contributing-to-documentation.xml" />
