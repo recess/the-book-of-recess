@@ -40,6 +40,8 @@ if [ ! -d "pub/pdf" ]; then
 	mkdir pub/pdf
 fi
 
+cp -Rf imgs pub/html
+
 java \
 	-Djava.endorsed.dirs=$xalan  \
     -cp "$xalan/xalan.jar;$xalan/xml-apis.jar;$xalan/xercesImpl.jar;$xsl/extensions/xalan27.jar" \
@@ -48,6 +50,7 @@ java \
     -in $input  \
     -out $outputChunked  \
     -xsl $xslChunked  \
+	-param keep.relative.image.uris 0 \
     -param use.extensions 1
 
 java \
@@ -58,6 +61,7 @@ java \
     -in $input  \
     -out $outputAllInOne  \
     -xsl $xslAllInOne  \
+	-param keep.relative.image.uris 0 \
     -param use.extensions 1
     
 java \
@@ -69,12 +73,16 @@ java \
     -out $outputFO  \
     -xsl $xslFO  \
     -param use.extensions 1
-    
+
+cp -Rf imgs $fop
+
 cd $fop
 java \
 	-jar "build/fop.jar" \
 	-fo ../../../$outputFO -pdf ../../../$outputPDF
-
+	
 cd $base
+
+rm -rf $fop/imgs
 
 echo "Published Recess DocBook to $output"
