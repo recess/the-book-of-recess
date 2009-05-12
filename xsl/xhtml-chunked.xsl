@@ -1,11 +1,61 @@
 <?xml version='1.0'?> 
-<xsl:stylesheet  xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"> 
+<xsl:stylesheet  
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+	xmlns:xslthl="http://xslthl.sf.net"
+ 	version="1.0"> 
 
 <xsl:import href="../libs/docbook-xsl/docbook-xsl-ns-1.75.0/xhtml-1_1/chunk.xsl"/>
 <xsl:import href="../libs/docbook-xsl/docbook-xsl-ns-1.75.0/highlighting/common.xsl"/>
 <xsl:import href="../libs/docbook-xsl/docbook-xsl-ns-1.75.0/xhtml-1_1/highlight.xsl"/>
 
 <xsl:param name="html.stylesheet">screen.css style.css</xsl:param>
+
+<xsl:param name="toc.section.depth">1</xsl:param>
+
+<xsl:param name="generate.toc">
+ article   toc,title
+ book      toc,title
+ chapter   toc,title
+ part      toc,title
+ reference toc,title
+</xsl:param>
+	
+<xsl:param name="html.stylesheet">screen.css style.css</xsl:param>
+
+<!-- BEGIN XSLTHL OVERRIDES  -->
+<xsl:template match="xslthl:keyword" mode="xslthl">
+  <span class="hl-keyword"><xsl:apply-templates mode="xslthl"/></span>
+</xsl:template>
+
+<xsl:template match="xslthl:string" mode="xslthl">
+  <span class="hl-string"><xsl:apply-templates mode="xslthl"/></span>
+</xsl:template>
+
+<xsl:template match="xslthl:doccomment" mode="xslthl">
+  <span class="hl-doccomment"><xsl:apply-templates mode="xslthl"/></span>
+</xsl:template>
+
+<xsl:template match="xslthl:comment" mode="xslthl">
+  <span class="hl-comment"><xsl:apply-templates mode="xslthl"/></span>
+</xsl:template>
+
+<xsl:template match="xslthl:directive" mode="xslthl">
+  <span class="hl-directive"><xsl:apply-templates mode="xslthl"/></span>
+</xsl:template>
+
+<xsl:template match="xslthl:tag" mode="xslthl">
+  <span class="hl-tag"><xsl:apply-templates mode="xslthl"/></span>
+</xsl:template>
+
+<xsl:template match="xslthl:attribute" mode="xslthl">
+  <span class="hl-attribute"><xsl:apply-templates mode="xslthl"/></span>
+</xsl:template>
+
+<xsl:template match="xslthl:value" mode="xslthl">
+  <span class="hl-value"><xsl:apply-templates mode="xslthl"/></span>
+</xsl:template>
+<!-- BEGIN XSLTHL OVERRIDES  -->
+
 
 	<!-- ===== Override to wrap content in extra divs ====-->
 	<xsl:template name="chunk-element-content">
@@ -55,5 +105,7 @@
 	  </html>
 	  <xsl:value-of select="$chunk.append"/>
 	</xsl:template>
+
+
 
 </xsl:stylesheet>

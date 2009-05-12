@@ -46,6 +46,7 @@ if [ ! -d "pub/pdf" ]; then
 fi
 
 cp -Rf imgs pub/html
+cp style/* pub/html
 
 java \
 	-Djava.endorsed.dirs=$xalan  \
