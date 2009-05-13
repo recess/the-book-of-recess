@@ -15,7 +15,7 @@
 		<title>What is routing?</title>
 		<para>Routing is the machinery that takes a requested URL path like <literal>/product/23</literal> and ‘routes’ or dispatches control to a specific point in your application. In most frameworks, including Recess, this is to a method in a <classname>Controller</classname>. Using a framework that has fast, flexible, RESTful routing is important because URLs are fundamental to how people, search engines, and web services interact with you web application.</para>	
 		<para>Let’s dive right into some code and take a look at how we can set up a route to a method in a controller:</para>
-<figure>
+<example>
 <title>A simple GET route.</title>
 <programlisting language="php"><![CDATA[<?php
 TestController extends Controller {
@@ -24,7 +24,7 @@ TestController extends Controller {
          echo 'Hello PHP Community!'; exit;
     }
 }]]></programlisting>
-</figure>
+</example>
 <indexterm>
 	<primary>RouteAnnotation</primary>
 </indexterm>
@@ -43,7 +43,7 @@ TestController extends Controller {
 </indexterm>
 <para>When a part of the route is preceded with a dollar sign it becomes a method parameter. Here is an example:</para>
 
-<figure>
+<example>
 <title>Simple parametric routes using route $parameters</title>
 <programlisting language="php"><![CDATA[<?php
 class TestController extends Controller {
@@ -52,7 +52,7 @@ class TestController extends Controller {
          echo "Hello $first $last!"; exit;
     }
 }]]></programlisting>
-</figure>
+</example>
 
 <para>Now if we browse to <literal>/hello/PHP/Community</literal> the browser will print “Hello PHP Community”. Parametric routes are often used with ID or primary key columns in a database. For example, if I were building a store in Recess I might have a Product Details page that used a route like: <literal>!Route GET, /product/$id</literal></para>
 </section>
@@ -65,7 +65,7 @@ class TestController extends Controller {
 </indexterm>
 <para>Controller methods can have multiple routes. For example, we can combine the previous two methods into one:</para>
 
-<figure>
+<example>
 <title>Multiple routes on a single controller method</title>
 <programlisting language="php"><![CDATA[<?php
 class TestController extends Controller {
@@ -77,7 +77,7 @@ class TestController extends Controller {
          echo "Hello $first $last!"; exit;
     }
 }]]></programlisting>
-</figure>
+</example>
 
 <para>If you accidentally add a route that conflicts with another somewhere else in your app Recess will tell you where the conflict occurred. The Recess Diagnostics error screen shows you where in your code the conflict occurred.</para>
 
@@ -97,7 +97,7 @@ If you’re familiar with Cake or Rails you may be wondering what is the upside 
 
 		<para>Routing in Recess is HTTP method-aware. To demonstrate this we can have two controller methods mapped to the same URL but differing HTTP METHODs:</para>
 
-<figure>
+<example>
 <title>Routing with different HTTP Methods</title>
 <programlisting language="php"><![CDATA[<?php
 class TestController extends Controller {
@@ -111,7 +111,7 @@ class TestController extends Controller {
          echo 'POSTed!'; exit;
     }
 }]]></programlisting>
-</figure>
+</example>
 
 <para>The first method will handle a GET to the url <literal>/same/url</literal> and the second a POST to <literal>/same/url</literal>. For an actual demonstration of this running check out the screen cast at minute 7:00! Having a routing system aware of HTTP methods is one way in which Recess helps simplify RESTful application develop in PHP.</para>
 </section>
@@ -128,7 +128,7 @@ class TestController extends Controller {
 
 <para>Relative routes are different from absolute routes in that they do not begin with a forward slash. Check out the <literal>!Route</literal> annotation for the world method below. By adding a <literal>!RoutesPrefix</literal> annotation to a controller we will prepend any relative route in the controller with <literal>hello/</literal> so we can now reach the world method using <literal>hello/world/</literal>.</para>
 
-<figure>
+<example>
 <title>Relative routing in controller routes to <literal>hello/world</literal>.</title>
 <programlisting language="php"><![CDATA[<?php
 /** !RoutesPrefix hello/ */
@@ -138,7 +138,7 @@ class TestController extends Controller {
          echo 'Hello World!'; exit;
     }
 }]]></programlisting>
-</figure>
+</example>
 </section>
 
 <section>
@@ -150,7 +150,7 @@ class TestController extends Controller {
 
 <para>If you’re familiar with Rails or Cake you’re probably wondering why I needed specify routes for the world and universe methods. In many frameworks these routes would be implicit. In Recess they can be implicit too. We can delete the route annotations and still access the methods in the same way. The important difference between the way implicit routes work in Recess and other frameworks is that Recess does not rely on the name of a controller to determine the route, but rather on the routing prefixes of the application and the controller.</para>
 
-<figure>
+<example>
 <title>Implicit routing in controller routes to <literal>hello/world</literal>.</title>
 <programlisting language="php"><![CDATA[<?php
 /** !RoutesPrefix hello/ */
@@ -159,11 +159,11 @@ class TestController extends Controller {
          echo 'Hello World!'; exit;
     }
 }]]></programlisting>
-</figure>
+</example>
 
 <para>Because we've set up a route prefix for the <classname>TestsController</classname> we can reach the world method by using the URL: <literal>hello/world</literal>. Implicit routes can have parameters too.</para>
 
-<figure>
+<example>
 <title>Implicit routing with parameters.</title>
 <programlisting language="php"><![CDATA[<?php
 /** !RoutesPrefix hello/ */
@@ -172,7 +172,7 @@ class TestController extends Controller {
          echo "Hello $first $last!"; exit;
     }
 }]]></programlisting>
-</figure>
+</example>
 
 <para>Now, <literal>hello/world/Michael/Scott</literal> will rest in the world method being called and printing "Hello Michael Scott!"</para>
 </section>
