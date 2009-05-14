@@ -65,6 +65,26 @@
 		<listitem>The URL you are currently at will be referenced {$installUrl}</listitem>
 		</orderedlist>
 		</figure>
+		
+		<section>
+			<title>Installing to Lighttpd</title>
+			<para>Recess makes use of .htaccess files to protect application code on Apache servers. 
+				  Lighttpd does not make use of Apache style .htaccess but instead has a centralized 
+				  configuration file. The following $HTTP["url"] settings have been used to secure
+				  Recess on a lighttpd server:</para>
+			<example>
+				<title>lighttpd configuration settings</title>
+				<programlisting language="lighttpd"><![CDATA[
+-- protect the default source code layout under Lighttpd
+$HTTP["url"] =~ "^/recess/|^/plugins/|^/data/|^/apps/" {
+        url.access-deny = ("")
+        $HTTP["url"] =~ "/public/" {
+                url.access-deny = ("~",".inc")
+        }
+}]]>				
+				</programlisting>
+			</example>
+		</section>
 	</section>
 	<section>
 		<title>Recess Release Log</title>	
