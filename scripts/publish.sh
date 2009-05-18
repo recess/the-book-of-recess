@@ -1,6 +1,6 @@
 #!/bin/bash
 
-input=recess-docbook.xml
+input=the-book-of-recess.xml
 
 base=`pwd`
 
