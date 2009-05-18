@@ -37,30 +37,29 @@ function isFor() { return Annotation::FOR_CLASS; }
 
 // Valid on methods or properties
 function isFor() { return Annotation::FOR_METHOD | Annotation::FOR_PROPERTY; }</programlisting></para>
-
-        <para><methodname>validate($class)</methodname> - Validate is called
-        just before expansion. Because there may be multiple constraints of an
-        annotation the implementation of validate should append any error
-        messages to the protected <varname>$errors</varname> property.
-        Commonly used validations helper methods are provided as protected
-        methods on the Annotation class.</para>
-
-        <para><methodname>expand($class, $reflection,
-        $descriptor)</methodname> - The expansion step of an annotation gives
-        it an opportunity to manipulate a class' descriptor by introducing
-        additional metadata, attach methods, and wrap methods. Parameters:
-        <parameter>$class</parameter> the classname the annotation is applied
-        to. <parameter>$reflection</parameter> The PHP
-        Reflection(Class|Method|Property) object the annotation is located on.
-        <parameter>$descriptor</parameter> is the ClassDescriptor that the
-        annotation is being expanded on.</para>
-
-        <para>The power of annotations comes in the
-        <methodname>expand</methodname> step. An annotation can modify a
-        class' descriptor which allows for methods to be attached to a class
-        and available on all instances of a class, as well as "wrap" methods
-        of a class marked as <literal>!Wrappable</literal></para>
       </example></para>
+
+    <para><methodname>validate($class)</methodname> - Validate is called just
+    before expansion. Because there may be multiple constraints of an
+    annotation the implementation of validate should append any error messages
+    to the protected <varname>$errors</varname> property. Commonly used
+    validations helper methods are provided as protected methods on the
+    Annotation class.</para>
+
+    <para><methodname>expand($class, $reflection, $descriptor)</methodname> -
+    The expansion step of an annotation gives it an opportunity to manipulate
+    a class' descriptor by introducing additional metadata, attach methods,
+    and wrap methods. Parameters: <parameter>$class</parameter> the classname
+    the annotation is applied to. <parameter>$reflection</parameter> The PHP
+    Reflection(Class|Method|Property) object the annotation is located on.
+    <parameter>$descriptor</parameter> is the ClassDescriptor that the
+    annotation is being expanded on.</para>
+
+    <para>The power of annotations comes in the
+    <methodname>expand</methodname> step. An annotation can modify a class'
+    descriptor which allows for methods to be attached to a class and
+    available on all instances of a class, as well as "wrap" methods of a
+    class marked as <literal>!Wrappable</literal></para>
 
     <section>
       <title>Writing an Annotation</title>
@@ -117,59 +116,56 @@ class CookieProtectedAnnotation extends Annotation {
           formation of the annotation. These validations are used to check
           things like the number of parameters, which classes the annotation
           is meaningful for (in this case, only on subclasses of
-          'Controller'), etc. </para>
+          'Controller'), etc.</para>
+        </example>The full list of helper methods for validate is:
+      <methodname>acceptedKeys</methodname>,
+      <methodname>requiredKeys</methodname>,
+      <methodname>acceptedKeylessValues</methodname>,
+      <methodname>acceptedIndexedValues</methodname>,
+      <methodname>acceptedValuesForKey</methodname>,
+      <methodname>acceptsNoKeylessValues</methodname>,
+      <methodname>acceptsNoKeyedValues</methodname>,
+      <methodname>validOnInstancesOf</methodname>,
+      <methodname>minimumParameterCount</methodname>,
+      <methodname>maximumParameterCount</methodname>,
+      <methodname>exactParameterCount</methodname>. To understand the meaning
+      of 'keys', 'indexed values', 'keyless values', you must understand the
+      way recess interprets annotations. Recess parses an annotation by doing
+      the following: 1) find an annotation by looking for an !Bang followed by
+      whitespace, "<literal>!Bang</literal>". 2) Convert everything after the
+      start of an annotation into a parameters array, <literal>!Bang foo, key:
+      bar</literal> becomes <literal>array("foo", "key" =&gt;
+      "bar")</literal>. 3) Instantiate the class named
+      <classname>BangAnnotation</classname> and pass the parameters into the
+      <classname>BangAnnotation</classname>instance's
+      <methodname>init</methodname> method. Thus, every subclass of
+      <classname>Annotation</classname> has a <varname>$parameters</varname>
+      property which is this array. The helper methods provide convenient ways
+      of checking the contents of this array during
+      <methodname>validate</methodname>.</para>
 
-          <para>The full list of helper methods for validate is:
-          <methodname>acceptedKeys</methodname>,
-          <methodname>requiredKeys</methodname>,
-          <methodname>acceptedKeylessValues</methodname>,
-          <methodname>acceptedIndexedValues</methodname>,
-          <methodname>acceptedValuesForKey</methodname>,
-          <methodname>acceptsNoKeylessValues</methodname>,
-          <methodname>acceptsNoKeyedValues</methodname>,
-          <methodname>validOnInstancesOf</methodname>,
-          <methodname>minimumParameterCount</methodname>,
-          <methodname>maximumParameterCount</methodname>,
-          <methodname>exactParameterCount</methodname>. To understand the
-          meaning of 'keys', 'indexed values', 'keyless values', you must
-          understand the way recess interprets annotations. Recess parses an
-          annotation by doing the following: 1) find an annotation by looking
-          for an !Bang followed by whitespace, "<literal>!Bang </literal>". 2)
-          Convert everything after the start of an annotation into a
-          parameters array, <literal>!Bang foo, key: bar</literal> becomes
-          <literal>array("foo", "key" =&gt; "bar")</literal>. 3) Instantiate
-          the class named <classname>BangAnnotation</classname> and pass the
-          parameters into the <classname>BangAnnotation </classname>instance's
-          <methodname>init</methodname> method. Thus, every subclass of
-          <classname>Annotation</classname> has a
-          <varname>$parameters</varname> property which is this array. The
-          helper methods provide convenient ways of checking the contents of
-          this array during <methodname>validate</methodname>.</para>
+      <para>Once <methodname>validate</methodname> has been run, if errors are
+      found in the annotation's <varname>$errors</varname> property a
+      <classname>RecessErrorException</classname> is thrown. If no errors are
+      found, then the final step before <methodname>expand</methodname> is
+      called is to make all keyed values in the <varname>$parameters</varname>
+      array properties of the annotation instance and to append all keyless
+      values of <varname>$parameters</varname> to the $values property. For
+      example, the annotation <literal>!Bang foo, Key: bar</literal> becomes:
+      <literal>$bang = new BangAnnotation(); $bang-&gt;init(array('foo', 'Key'
+      =&gt; 'bar'));</literal> Finally, after Recess calls
+      <methodname>expandAnnotation</methodname> (which, in turn, calls your
+      user-defined <methodname>expand</methodname>), your
+      <methodname>expand</methodname> can reference
+      <property>$this-&gt;values[0]</property> to find
+      <literal>'foo'</literal> and <property>$this-&gt;key</property> to get
+      <literal>'bar'</literal>.</para>
 
-          <para>Once <methodname>validate</methodname> has been run, if errors
-          are found in the annotation's <varname>$errors</varname> property a
-          <classname>RecessErrorException</classname> is thrown. If no errors
-          are found, then the final step before
-          <methodname>expand</methodname> is called is to make all keyed
-          values in the <varname>$parameters</varname> array properties of the
-          annotation instance and to append all keyless values of
-          <varname>$parameters</varname> to the $values property. For example,
-          the annotation <literal>!Bang foo, Key: bar</literal> becomes:
-          <literal>$bang = new BangAnnotation(); $bang-&gt;init(array('foo',
-          'Key' =&gt; 'bar'));</literal> Finally, after Recess calls
-          <methodname>expandAnnotation</methodname> (which, in turn, calls
-          your user-defined <methodname>expand</methodname>), your
-          <methodname>expand</methodname> can reference
-          <property>$this-&gt;values[0]</property> to find
-          <literal>'foo'</literal> and <property>$this-&gt;key</property> to
-          get <literal>'bar'</literal>.</para>
-
-          <para><note>
-              <para>In the <methodname>init</methodname> method of
-              <classname>Annotation</classname>s all array keys are converted
-              to lowercase.</para>
-            </note></para>
-        </example></para>
+      <para><note>
+          <para>In the <methodname>init</methodname> method of
+          <classname>Annotation</classname>s all array keys are converted to
+          lowercase.</para>
+        </note></para>
     </section>
   </section>
 </chapter>
