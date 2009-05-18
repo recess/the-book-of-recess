@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter xmlns="http://docbook.org/ns/docbook"
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0"
 		 xmlns:xl="http://www.w3.org/1999/xlink"
-         xml:id="06.02">
+         xml:id="recess.06.02">
 
 <title>Setting up PHPUnit for Recess</title>
 
@@ -25,21 +25,21 @@
 <figure>
 	<title>Setting up PHPUnit for Recess</title>
 	<orderedlist>
-		<listitem>Install PEAR - Typically this is done by executing the <command>go-pear</command> script in your PHP installation directory.</listitem>
-		<listitem>Install <link xl:href="http://www.phpunit.de/manual/3.3/en/installation.html">PHPUnit</link>
+		<listitem><para>Install PEAR - Typically this is done by executing the <command>go-pear</command> script in your PHP installation directory.</para></listitem>
+		<listitem><para>Install <link xl:href="http://www.phpunit.de/manual/3.3/en/installation.html">PHPUnit</link></para>
 			<orderedlist>
-				<listitem>First add the PHPUnit channel to PEAR: <command>pear channel-discover pear.phpunit.de</command></listitem>
-				<listitem>Next install PHPUnit with <command>pear install phpunit/PHPUnit</command></listitem>
+				<listitem><para>First add the PHPUnit channel to PEAR: <command>pear channel-discover pear.phpunit.de</command></para></listitem>
+				<listitem><para>Next install PHPUnit with <command>pear install phpunit/PHPUnit</command></para></listitem>
 			</orderedlist>
 		</listitem>
-		<listitem>Setup MySQL &amp; DSN for Database Tests
+		<listitem><para>Setup MySQL &amp; DSN for Database Tests
 			<orderedlist>
-				<listitem>The default MySQL test DSN is <literal>'localhost,dbname=recess, user=recess, password=recess'</literal></listitem>
-				<listitem>To use settings other than default modify <filename>recess/test/recess/database/PdoDsnSettings.php</filename></listitem>
-			</orderedlist>
+				<listitem><para>The default MySQL test DSN is <literal>'localhost,dbname=recess, user=recess, password=recess'</literal></para></listitem>
+				<listitem><para>To use settings other than default modify <filename>recess/test/recess/database/PdoDsnSettings.php</filename></para></listitem>
+			</orderedlist></para>
 		</listitem>
-		<listitem>At a command prompt, navigate to <filename class="directory">recess/test/</filename></listitem>
-		<listitem>Run the Unit Tests: <command>phpunit --bootstrap bootstrap.php AllTests.php</command></listitem>
+		<listitem><para>At a command prompt, navigate to <filename class="directory">recess/test/</filename></para></listitem>
+		<listitem><para>Run the Unit Tests: <command>phpunit --bootstrap bootstrap.php AllTests.php</command></para></listitem>
 	</orderedlist>
 </figure>
 

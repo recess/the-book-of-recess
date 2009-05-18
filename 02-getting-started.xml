@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<part xmlns="http://docbook.org/ns/docbook"
-		 xmlns:xi="http://www.w3.org/2001/XInclude">
+<part xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude" version="1.0">
 	<title>Getting Started</title>
-	<xi:include href="02-getting-started/01-installing-recess.xml" />
-	<xi:include href="02-getting-started/02-the-structure-of-recess-applications.xml" />
-	<xi:include href="02-getting-started/03-hello-world.xml" />
+	<xi:include href="02-getting-started/01-installing-recess.xml"/>
+	<xi:include href="02-getting-started/02-the-structure-of-recess-applications.xml"/>
+	<xi:include href="02-getting-started/03-hello-world.xml"/>
 </part>

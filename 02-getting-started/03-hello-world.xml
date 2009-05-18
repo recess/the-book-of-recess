@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter xmlns="http://docbook.org/ns/docbook"
-		 xmlns:xl="http://www.w3.org/1999/xlink"
-         xml:id="02.03">
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0"
+         xmlns:xl="http://www.w3.org/1999/xlink"
+         xml:id="CH.02.03">
 <title>Hello World</title>
 
-<section xml:id="02.03.recess-tools">
+<section xml:id="recess.02.03.recess-tools">
 
 <title>Starting an Application with Recess Tools</title>
 
@@ -133,17 +133,19 @@
 <para>
 Now create the following 'views' and 'controllers' sub-directories so your structure looks like this:
 <itemizedlist>
-		<listitem>apps/
+		<listitem>
+		      <para>apps/
 			<itemizedlist>
 			<listitem>
-				helloWorld/
+				<para>helloWorld/
 				<itemizedlist>
-					<listitem>models/</listitem>
-					<listitem>views/</listitem>
-					<listitem>controllers/</listitem>
-				</itemizedlist>
+					<listitem><para>models/</para></listitem>
+					<listitem><para>views/</para></listitem>
+					<listitem><para>controllers/</para></listitem>
+				</itemizedlist></para>
 			</listitem>
-		</itemizedlist>
+			</itemizedlist>
+		      </para>
 		</listitem>
 </itemizedlist>
 </para>
@@ -175,7 +177,7 @@ class HelloWorldApplication extends Application {
 </indexterm>
 <para>In Recess a <indexterm><primary><classname>Controller</classname></primary></indexterm> is an object responsible for taking a web request, invoking the intended logic in a <classname>Model</classname>, and then selecting a <classname>View</classname> which will generate the response, likely in <acronym>HTML</acronym>, to be sent back to the client.</para>
 
-<para>Having kicked-off a <classname>HelloWorldApplication</classname> in <link linkend="02.03.recess-tools">Recess Tools</link>, let's take a quick look at some basic concepts.</para>
+<para>Having kicked-off a <classname>HelloWorldApplication</classname> in <link linkend="recess.02.03.recess-tools">Recess Tools</link>, let's take a quick look at some basic concepts.</para>
 
 <para>In an <filename class="directory">apps/helloWorld</filename> directory there is a subdirectory <filename class="directory">controllers</filename> where <classname>Controller</classname>s are placed. Creating a new controller involves creating a new PHP file containing a class which extends <classname>Controller</classname>. Here is an example:</para>
 
@@ -205,7 +207,7 @@ class HelloWorldController extends Controller {
 
 <section>
 <title>Routing</title>
-<para>Routing is the subsystem in Recess that maps a URL to a method in your controller. For more information on routing details refer to this article on  <a href="http://www.recessframework.org/page/routing-in-recess-screencast">Routing</a></para>
+<para>Routing is the subsystem in Recess that maps a URL to a method in your controller. For more information on routing details refer to this article on Routing.</para>
 </section>
 <section>
 <title>The <classname>Request</classname> Object</title> 

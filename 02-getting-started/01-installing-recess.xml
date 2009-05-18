@@ -1,25 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter xmlns="http://docbook.org/ns/docbook"
-		 xmlns:xl="http://www.w3.org/1999/xlink"
-         xml:id="02.01">
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0" xmlns:xl="http://www.w3.org/1999/xlink"
+	xml:id="recess.02.01">
 	<title>Installing Recess</title>
 	<section>
 		<title>Requirements</title>
-			<para>
-			The minimum requirements to run Recess are:
-			<orderedlist>
+		<para> The minimum requirements to run Recess are: <orderedlist>
 				<title>Minimum requirements:</title>
-				<listitem>Apache 2.x</listitem>
-				<listitem>PHP > 5.2.4</listitem>
-			</orderedlist>
-			<orderedlist>
+				<listitem>
+					<para>Apache 2.x</para>
+				</listitem>
+				<listitem>
+					<para>PHP > 5.2.4</para>
+				</listitem>
+			</orderedlist><orderedlist>
 				<title>Recommended requirements:</title>
-				<listitem><link xl:href="http://httpd.apache.org/">Apache 2.2</link></listitem>
-				<listitem><link xl:href="http://httpd.apache.org/docs/2.2/mod/mod_rewrite.html">mod_rewrite</link></listitem>
-				<listitem><link xl:href="http://www.php.net/downloads.php">PHP >= 5.2.9</link></listitem>
-				<listitem><link xl:href="http://us2.php.net/apc">Advanced PHP Cache</link></listitem>
-			</orderedlist>
-		</para>
+				<listitem><para><link xl:href="http://httpd.apache.org/">Apache 2.2</link></para></listitem>
+				<listitem><para><link xl:href="http://httpd.apache.org/docs/2.2/mod/mod_rewrite.html"
+						>mod_rewrite</link></para></listitem>
+				<listitem><para><link xl:href="http://www.php.net/downloads.php">PHP >=
+					5.2.9</link></para></listitem>
+				<listitem><para><link xl:href="http://us2.php.net/apc">Advanced PHP
+					Cache</link></para></listitem>
+			</orderedlist></para>
 	</section>
 	<section>
 		<title>Downloading &amp; Installing Recess</title>
@@ -31,75 +33,72 @@
 			<primary>Install</primary>
 			<secondary>from GitHub</secondary>
 		</indexterm>
-		<para>
-		Recess can be downloaded from the <link xl:href="http://www.recessframework.org/">Recess PHP Framework Web Site</link>.
-		</para>
-		<para>
-		For the Edge Development branch the Recess Framework source tree is hosted at GitHub at <link xl:href="http://github.com/recess/recess">http://github.com/recess/recess</link>.
-		</para>
-		
+		<para> Recess can be downloaded from the <link xl:href="http://www.recessframework.org/"
+				>Recess PHP Framework Web Site</link>. </para>
+		<para> For the Edge Development branch the Recess Framework source tree is hosted at GitHub
+			at <link xl:href="http://github.com/recess/recess"
+				>http://github.com/recess/recess</link>. </para>
 		<figure>
-		<title>Steps to Install Recess</title>
-		<orderedlist>
-		<listitem>Unzip contents into your web documents path (i.e. public_html)</listitem>
-		<listitem>On a development machine make these directories writeable by PHP:
-			<itemizedlist>
-				<listitem>apps/</listitem>
-				<listitem>data/temp/</listitem>
-				<listitem>data/sqlite/</listitem>
-			</itemizedlist>
-		</listitem>
-		<listitem>Open recess-conf.php and set RecessConf::$defaultDatabase
-			<itemizedlist>
-			<listitem>If using MySQL: Uncomment the ‘mysql:...’ line and fill in DBNAME/USER/PASS</listitem>
-			<listitem>If using Sqlite: Uncomment the ‘sqlite:...’ line and name the database</listitem>			
-			</itemizedlist>
-		</listitem>
-		<listitem>Do you have mod_rewrite?
-			<itemizedlist>
-			<listitem>Yes: Open your browser to the location you unzipped</listitem>
-			<listitem>No: Open your browser to the location you unzipped followed by index.php</listitem>
-			</itemizedlist>
-		</listitem>
-		<listitem>If you see “Welcome to Recess!” we’re ready to rock.</listitem>
-		<listitem>The URL you are currently at will be referenced {$installUrl}</listitem>
-		</orderedlist>
+			<title>Steps to Install Recess</title>
+			<orderedlist>
+				<listitem><para>Unzip contents into your web documents path (i.e. public_html)</para></listitem>
+				<listitem><para>On a development machine make these directories writeable by PHP: </para><itemizedlist>
+						<listitem><para>apps/</para></listitem>
+						<listitem><para>data/temp/</para></listitem>
+						<listitem><para>data/sqlite/</para></listitem>
+					</itemizedlist></listitem>
+				<listitem><para>Open recess-conf.php and set RecessConf::$defaultDatabase</para><itemizedlist>
+						<listitem><para>If using MySQL: Uncomment the ‘mysql:...’ line and fill in
+							DBNAME/USER/PASS</para></listitem>
+						<listitem><para>If using Sqlite: Uncomment the ‘sqlite:...’ line and name the
+							database</para></listitem>
+					</itemizedlist></listitem>
+				<listitem><para>Do you have mod_rewrite? </para><itemizedlist>
+						<listitem><para>Yes: Open your browser to the location you unzipped</para></listitem>
+						<listitem><para>No: Open your browser to the location you unzipped followed by
+							index.php</para></listitem>
+					</itemizedlist></listitem>
+				<listitem><para>If you see “Welcome to Recess!” we’re ready to rock.</para></listitem>
+				<listitem><para>The URL you are currently at will be referenced {$installUrl}</para></listitem>
+			</orderedlist>
 		</figure>
 	</section>
 	<section>
-		<title>Recess Release Log</title>	
+		<title>Recess Release Log</title>
 		<itemizedlist>
 			<listitem>
 				<itemizedlist>
 					<title>Version 0.12 on 2009-03-31</title>
-					<listitem>jQuery included in distribution for off-line support</listitem>
-					<listitem>Fixed sporadic behavior when text editors like emacs create temporary files in src directories</listitem>
-					<listitem>Improved installation support detecting availability of PDO, SqlitePdo, and MySql PDO</listitem>
-					<listitem>Many other minor bug fixes</listitem>
+					<listitem><para>jQuery included in distribution for off-line support</para></listitem>
+					<listitem><para>Fixed sporadic behavior when text editors like emacs create temporary
+						files in src directories</para></listitem>
+					<listitem><para>Improved installation support detecting availability of PDO,
+						SqlitePdo, and MySql PDO</para></listitem>
+					<listitem><para>Many other minor bug fixes</para></listitem>
 				</itemizedlist>
 			</listitem>
 			<listitem>
 				<itemizedlist>
 					<title>Version 0.11.1 on 2009-02-18</title>
-					<listitem>Unit Tests Support PHPUnit</listitem>
-					<listitem>Existing tests migrated from SimpleTest to PHPUnit</listitem>
-					<listitem>Smarty moved to an external package</listitem>
-					<listitem>Regression fix from 0.11</listitem>
+					<listitem><para>Unit Tests Support PHPUnit</para></listitem>
+					<listitem><para>Existing tests migrated from SimpleTest to PHPUnit</para></listitem>
+					<listitem><para>Smarty moved to an external package</para></listitem>
+					<listitem><para>Regression fix from 0.11</para></listitem>
 				</itemizedlist>
-			</listitem>		
+			</listitem>
 			<listitem>
 				<itemizedlist>
 					<title>Version 0.11 on 2009-02-17</title>
-					<listitem>Numerous bug fixes</listitem>
-					<listitem>Improved MySQL support</listitem>
-					<listitem>Scaffolding improvements</listitem>
-					<listitem>Regression fix from 0.11</listitem>
+					<listitem><para>Numerous bug fixes</para></listitem>
+					<listitem><para>Improved MySQL support</para></listitem>
+					<listitem><para>Scaffolding improvements</para></listitem>
+					<listitem><para>Regression fix from 0.11</para></listitem>
 				</itemizedlist>
-			</listitem>			
+			</listitem>
 			<listitem>
 				<itemizedlist>
-				<title>Version 0.10 on 2009-12-25</title>
-				<listitem>First public release of the Recess PHP Framework.</listitem>
+					<title>Version 0.10 on 2009-12-25</title>
+					<listitem><para>First public release of the Recess PHP Framework.</para></listitem>
 				</itemizedlist>
 			</listitem>
 		</itemizedlist>

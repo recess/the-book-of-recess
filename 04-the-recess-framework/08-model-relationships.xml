@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xl="http://www.w3.org/1999/xlink"
-	xml:id="04.08">
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0"
+	xmlns:xl="http://www.w3.org/1999/xlink"
+	xml:id="recess.04.08">
 	<title>Relationships Between Models</title>
 <indexterm>
 	<primary>Relationships</primary>
@@ -132,7 +133,7 @@ class Post extends Model { /** Stripped for Brevity */ }
 			relationship
 			<classname>Post</classname>
 			has an attached method of
-			<methoname>user()</methoname>
+			<methodname>user()</methodname>
 			which will return the
 			<classname>User</classname>
 			model a
@@ -226,7 +227,7 @@ $post->person(); // querying the relationship
 
 <table>
 	<title>Variables used in following table</title>
-	<tgroup cols="2" alignt="left" colsep="1" rowsep="1">
+	<tgroup cols="2" align="left" colsep="1" rowsep="1">
 		<thead>
 			<row><entry>Variable</entry><entry>Value</entry></row>
 		</thead>
@@ -238,7 +239,7 @@ $post->person(); // querying the relationship
 
 <table>
 	<title>Naming conventions for <literal>!BelongsTo</literal></title>
-	<tgroup cols="4" alignt="left" colsep="1" rowsep="1">
+	<tgroup cols="4" align="left" colsep="1" rowsep="1">
 		<thead>
 			<row><entry>For</entry><entry>Convention</entry><entry>Example</entry><entry>Override</entry></row>
 		</thead>
@@ -287,7 +288,7 @@ $person->post(); // usage
 
 <table>
 	<title>Variables used in following table</title>
-	<tgroup cols="2" alignt="left" colsep="1" rowsep="1">
+	<tgroup cols="2" align="left" colsep="1" rowsep="1">
 		<thead>
 			<row><entry>Variable</entry><entry>Value</entry></row>
 		</thead>
@@ -300,7 +301,7 @@ $person->post(); // usage
 
 <table>
 	<title>Naming conventions for <literal>!HasMany</literal></title>
-	<tgroup cols="4" alignt="left" colsep="1" rowsep="1">
+	<tgroup cols="4" align="left" colsep="1" rowsep="1">
 		<thead>
 			<row><entry>For</entry><entry>Convention</entry><entry>Example</entry><entry>Override</entry></row>
 		</thead>
@@ -357,7 +358,7 @@ $post->tag();
 
 <table>
 	<title>Variables used in following table</title>
-	<tgroup cols="2" alignt="left" colsep="1" rowsep="1">
+	<tgroup cols="2" align="left" colsep="1" rowsep="1">
 		<thead>
 			<row><entry>Variable</entry><entry>Value</entry></row>
 		</thead>
@@ -368,10 +369,10 @@ $post->tag();
 		</tbody>
 	</tgroup>
 </table>
-
+	<note><para>The following "From" and "To" are a planned convention not yet supported.</para></note>
 <table>
 	<title>Naming conventions for <literal>!HasMany, Through</literal></title>
-	<tgroup cols="4" alignt="left" colsep="1" rowsep="1">
+	<tgroup cols="4" align="left" colsep="1" rowsep="1">
 		<thead>
 			<row><entry>For</entry><entry>Convention</entry><entry>Example</entry><entry>Override</entry></row>
 		</thead>

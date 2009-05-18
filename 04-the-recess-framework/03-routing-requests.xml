@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter xmlns="http://docbook.org/ns/docbook"
 		 xmlns:xl="http://www.w3.org/1999/xlink"
-         xml:id="04.03">
+		 version="5.0"
+         xml:id="recess.04.03">
 <title>Routing Requests</title>
 <indexterm>
 	<primary>Routing</primary>
@@ -86,7 +87,7 @@ class TestController extends Controller {
 <section>
 <title>Keeping it DRY</title>
 
-If you’re familiar with Cake or Rails you may be wondering what is the upside to specifying routes in-line with my methods? The long and short of it is, it is more DRY. With a separate routes file you must duplicate the name of a controller and method which a route maps to. So if you refactor your controller code you must remember to go and update your routes file as well. By keeping the two together it’s never a mystery what URL will take you to the controller method you’re working on.
+     <para>If you’re familiar with Cake or Rails you may be wondering what is the upside to specifying routes in-line with my methods? The long and short of it is, it is more DRY. With a separate routes file you must duplicate the name of a controller and method which a route maps to. So if you refactor your controller code you must remember to go and update your routes file as well. By keeping the two together it’s never a mystery what URL will take you to the controller method you’re working on.</para>
 </section>
 </section>
 
@@ -178,12 +179,12 @@ class TestController extends Controller {
 </section>
 
 <section>
-<indexterm>
-	<primary>Recess Tools</primary>
-	<secondary>Routing</secondary>
-</indexterm>
 <title>Recess Tools &amp; Routing</title>
-
+<indexterm>
+     <primary>Recess Tools</primary>
+     <secondary>Routing</secondary>
+</indexterm>
+     
 <para>With routes being sprinkled throughout controllers don’t you lose the ability to look in a single place and get a sense of all of the routes in your application?</para>
 
 <para>Recess Tools is first class Recess application that runs in the browser and is designed to help you along in development mode writing apps. With Tools we can see all of the routes explicit and implicit, relative and absolute, for any given application. The table lists the HTTP method and route corresponding which map to a controller class and method. With Recess Tools you can get a global picture of Routes in your application.</para>
