@@ -82,7 +82,7 @@ function isFor() { return Annotation::FOR_METHOD | Annotation::FOR_PROPERTY; }</
           <title>The Beginnings of the <literal>!CookieProtected</literal>
           Annotation</title>
 
-          <para><programlisting>&lt;?php
+          <para><programlisting language="php">&lt;?php
 Library::import('recess.lang.Annotation');
 
 class CookieProtectedAnnotation extends Annotation {
