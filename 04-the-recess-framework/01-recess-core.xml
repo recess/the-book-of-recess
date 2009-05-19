@@ -8,10 +8,54 @@
          xmlns:ns="http://docbook.org/ns/docbook">
   <title>Recess Core</title>
 
-  <section>
-    <title>The <classname>Library</classname> Class</title>
+  <para></para>
 
-    <para></para>
+  <section>
+    <title><literal>recess.lang's</literal> language extensions to PHP</title>
+
+    <para>Recess takes a different approach from many PHP web frameworks.
+    Fundamental to the Recess 'Framework' is Recess 'Core', a shallow layer of
+    classes that rest just above PHP in the architecture of Recess
+    applications which provide extensions to the PHP language. These classes,
+    located in <literal>recess.lang.*</literal>, are framework agnostic, as we
+    will see in the examples through this chapter. By extending Recess'
+    <classname>Object</classname> class, additional functionalities like the
+    ability to 'attach' methods to a class at runtime, define methods that can
+    be 'wrapped' by objects implementing <classname>IWrapper</classname>, and
+    use Recess-style <literal>!Annotations</literal> are all enabled for
+    user-defined classes.</para>
+
+    <para>Where PHP stops short of providing language-level constructs for
+    these useful capabilities found in other programming languages, Recess
+    Core fills in the gaps with library-level support that is still distinctly
+    PHP.</para>
+  </section>
+
+  <section>
+    <title>The <classname>Library</classname> Class &amp; Autoloader</title>
+
+    <para>The <classname>Library</classname> class' purpose is to simplify the
+    inclusion of dependencies between classes. Under the covers
+    <classname>Library</classname> uses an autoloading mechanism and some
+    other techniques to ensure high-performance in applications that use
+    Recess Core's functionalities. These caching and script compilation
+    techniques will be discussed in-depth later.</para>
+
+    <para><classname>Library</classname>'s most useful static methods are
+    <methodname>addClassPath</methodname> and <methodname>import</methodname>.
+    </para>
+
+    <para>Its style is inspired by Java/C# imports and is a stylistic
+    difference from the conventions libraries like the Zend Framework
+    take.</para>
+
+    <para><note>
+        <para>Recess' convention is one class definition per file. PHP files
+        that contain class definitions must use the same name for the file as
+        the class' name, followed by the extension ".class.php". So, for a
+        class defined with <code language="php">class Foo { ... }</code> the
+        filename would be <filename>Foo.class.php</filename>.</para>
+      </note></para>
   </section>
 
   <section>
@@ -27,7 +71,7 @@
   </section>
 
   <section>
-    <title>Wrapped Methods</title>
+    <title>Wrapped Methods and <classname>IWrapper</classname></title>
 
     <para></para>
   </section>
@@ -96,11 +140,12 @@ function isFor() { return Annotation::FOR_METHOD | Annotation::FOR_PROPERTY; }</
       redirect users to an optionally specified path (else, "/") if they do
       not have the necessary cookie. We'll craft the annotation in two-steps,
       first we'll implement the abstract methods of
-      <classname>Annotation</classname>, then we'll take a brief tangent to
-      discuss <classname>WrappedMethod</classname>s and finish off the
-      functionality of the <classname>CookieProtectedAnnotation</classname> by
-      wrapping a <classname>Controller</classname>'s
-      <methodname>serve</methodname> method.</para>
+      <classname>Annotation</classname>, then we'll take combine the
+      annotation with the previously discussed
+      <classname>WrappedMethod</classname>s to finish off the functionality of
+      the <classname>CookieProtectedAnnotation</classname> by wrapping a
+      <classname>Controller</classname>'s <methodname>serve</methodname>
+      method.</para>
 
       <para><example>
           <title>The Beginnings of the <literal>!CookieProtected</literal>
