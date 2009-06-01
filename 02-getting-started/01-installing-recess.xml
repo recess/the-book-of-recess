@@ -117,7 +117,7 @@ $HTTP["url"] =~ "^/recess/|^/plugins/|^/data/|^/apps/" {
 			</listitem>
 			<listitem>
 				<itemizedlist>
-					<title>Version 0.10 on 2009-12-25</title>
+					<title>Version 0.10 on 2008-12-25</title>
 					<listitem><para>First public release of the Recess PHP Framework.</para></listitem>
 				</itemizedlist>
 			</listitem>
