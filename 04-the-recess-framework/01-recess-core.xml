@@ -11,14 +11,16 @@
   <para></para>
 
   <section>
-    <title><literal>recess.lang's</literal> language extensions to PHP</title>
+    <title><literal>recess.lang </literal>as a language extensions to
+    PHP</title>
 
     <para>Recess takes a different approach from many PHP web frameworks.
     Fundamental to the Recess 'Framework' is Recess 'Core', a shallow layer of
     classes that rest just above PHP in the architecture of Recess
     applications which provide extensions to the PHP language. These classes,
-    located in <literal>recess.lang.*</literal>, are framework agnostic, as we
-    will see in the examples through this chapter. By extending Recess'
+    located in <literal>recess.lang.*</literal>, are web framework agnostic,
+    as we will see in the examples through this chapter. The Recess Framework
+    is built upon Recess Core. By extending Recess'
     <classname>Object</classname> class, additional functionalities like the
     ability to 'attach' methods to a class at runtime, define methods that can
     be 'wrapped' by objects implementing <classname>IWrapper</classname>, and
@@ -43,11 +45,49 @@
 
     <para><classname>Library</classname>'s most useful static methods are
     <methodname>addClassPath</methodname> and <methodname>import</methodname>.
-    </para>
+    <classname>Library</classname> maintains a list of directories it attempts
+    to find an imported class in. The exact location of imported class files
+    can be cached by <classname>Library</classname> to avoid hitting disk
+    multiple times to locate single files. The order in which paths are added
+    to <classname>Library</classname> using
+    <methodname>addClassPath</methodname> is important. When attempting to
+    import a class paths are checked from the most-recently added to the
+    least-recently added using <methodname>addClassPath</methodname>. The
+    Recess Framework uses this mechanism to allow classes defined in
+    <filename>plugins/</filename> to take precedence over
+    <filename>recess/</filename>, and classes in <filename>apps/</filename> to
+    take precedence over <filename>plugins/</filename>.</para>
 
-    <para>Its style is inspired by Java/C# imports and is a stylistic
-    difference from the conventions libraries like the Zend Framework
-    take.</para>
+    <para><classname>Library</classname>'s <literal>import</literal> style is
+    inspired by Java/C# imports and is a stylistic difference from libraries
+    like the Zend Framework. Suppose the following directory structure:</para>
+
+    <para><screen>/public_html
+   /foo
+       ClassA.class.php
+       /bar
+           ClassB.class.php</screen>These classes can be imported using
+    <classname>Library</classname> with the following snippet of PHP:</para>
+
+    <para><example>
+        <title>Using Library's <methodname>addClassPath</methodname> and
+        <methodname>import</methodname> methods</title>
+
+        <para><programlisting language="php">Library::addClassPath('/home/example/public_html');
+
+Library::import('foo.ClassA');
+$aClass = new AClass();
+
+Library::import('foo.bar.ClassB');
+$bClass = new BClass();</programlisting></para>
+      </example></para>
+
+    <para>If you ever need to use use <classname>Library</classname> and
+    Recess classes in PHP files outside of the Recess Framework it requires
+    setting up some environment variables and using
+    <methodname>include</methodname> on Library directly. The following
+    snippet can be placed into a php script and included by plain-old PHP
+    files.</para>
 
     <para><note>
         <para>Recess' convention is one class definition per file. PHP files
@@ -56,28 +96,383 @@
         class defined with <code language="php">class Foo { ... }</code> the
         filename would be <filename>Foo.class.php</filename>.</para>
       </note></para>
+
+    <example>
+      <title>core-bootstrap.php - Bootstrapping into Recess Core with
+      <classname>Library</classname></title>
+
+      <para><programlisting language="php">&lt;?php 
+// core-bootstrap.php
+// Bootstrap into Recess Core
+date_default_timezone_set('America/New_York');
+
+$_ENV['dir.bootstrap'] = str_replace('\\','/',realpath(dirname(__FILE__))) . '/';
+$_ENV['url.base'] = str_replace(filename(__FILE__), '', $_SERVER['PHP_SELF']);
+
+$_ENV['dir.recess'] = $_ENV['dir.bootstrap'] . 'recess/';
+$_ENV['dir.temp'] = $_ENV['dir.bootstrap'] . 'data/temp/'; // This directory must be writeable by PHP
+
+require($_ENV['dir.recess'] . 'recess/lang/Library.class.php');
+Library::addClassPath($_ENV['dir.recess']);
+Library::addClassPath($_ENV['dir.bootstrap'] . 'plugins/'); // Add additonal paths to Library's classpath
+Library::addClassPath($_ENV['dir.bootstrap'] . 'apps/');
+?&gt;</programlisting></para>
+    </example>
+
+    <para>These directory paths may need to be tweaked depending on where
+    you've extracted the Recess distribution. Explanations for each of these
+    environment variables follows:</para>
+
+    <para><varname>$_ENV['dir.bootstrap']</varname> - The absolute directory
+    that contains the bootstrap file. This is a helper variable that
+    simplifies defining the other environment directories by reference.</para>
+
+    <para><varname>$_ENV['dir.recess']</varname> - The base directory for
+    Recess' source files. This directory should contain two subdirectories:
+    <filename>recess/</filename> and <filename>test/</filename>.</para>
+
+    <para><varname>$_ENV['dir.temp']</varname> - A directory that is writable
+    by PHP scripts. This directory is used by Recess to store temporary data
+    such as cached data structures or compiled scripts.</para>
+
+    <para><varname>$_ENV['url.base']</varname> - This is the base URL path
+    that relative URLs should be constructed from. Outside of the Recess
+    Framework this is less meaningful. Recess uses it for mapping routes, and
+    generating URLs in view helpers.</para>
   </section>
 
   <section>
     <title>The <classname>Object</classname> Class</title>
 
-    <para></para>
+    <para><classname>Object</classname> is the base class for extensible
+    classes in the Recess. <classname>Object</classname> introduces a standard
+    for building a class descriptor through reflection and the realization of
+    Recess Annotations. <classname>Object</classname> also introduces the
+    ability to attach methods to a class at run-time and create wrappable
+    methods.</para>
+
+    <para><classname>Object</classname> is the superclass for the major
+    components of Recess: <classname>Model</classname>s,
+    <classname>Controller</classname>s, and <classname>View</classname>s. The
+    two most common types of classes created when using the Recess Framework
+    are Models and Controllers. There is nothing prohibiting developers from
+    extending <classname>Object</classname> in their own custom classes. In
+    fact, if you are a developer feeling particularly ambitious and needing to
+    roll a mini-framework with a different composition than Recess, starting
+    with <classname>Object</classname> and other primitives like
+    <classname>Library</classname> defined in Recess Core will make your job
+    much more pleasant!</para>
+
+    <para>A primary purpose of any framework is to remove boilerplate code
+    whereever possible. Object-oriented (OO) languages provide different means
+    for removing code-duplication. The most commonly used techniques in
+    well-known OO languages of Java and C++ are inheritance and composition.
+    PHP has support for these common techniques and Recess makes use of them
+    wherever possible. Other languages that support object-oriented
+    programming like SmallTalk, Scala, and Ruby go beyond composition and
+    inheritance and allow modules or traits to attach new units of
+    functionality to class definitions (like properties and methods)
+    dynamically. Recess Core provides a systematic way for simulating similar
+    language features and allows for methods to be
+    <emphasis>attached</emphasis> to classes that extend
+    <classname>Object</classname> at run-time. This technique in combination
+    with <emphasis>annotations</emphasis> is how the Recess ORM provides
+    methods to access relationships, for example. Further discussion of
+    <emphasis>attached methods</emphasis> see <xref
+    linkend="section.core.attached-methods" />.</para>
+
+    <para>Another form of extensibility in Recess that draws inspiration from
+    a more sophisticated Aspect-Oriented Programming and the 'similar in
+    spirit' Decorator OO pattern are <emphasis><link
+    linkend="section.core.wrappable-methods">wrappable
+    methods</link></emphasis>. Classes extending <classname>Object</classname>
+    can declare a method to be <literal>!Wrappable</literal>. Once wrappable,
+    other classes implementing the <interfacename>IWrapper</interfacename>
+    interface can dynamically wrap functionality around calls to the method.
+    Key methods in the framework, like <classname>Controller</classname>'s
+    <methodname>serve</methodname> and <classname>Model</classname>'s
+    <methodname>insert</methodname>, <methodname>update</methodname>,
+    <methodname>delete</methodname>, are wrappable. Why is this useful? It
+    allows user-defined functionality to inject behavior just before or just
+    after core framework method calls in a standard way. For example,
+    validations on a Model may take place just before
+    <methodname>insert</methodname> or <methodname>update</methodname>, using
+    wrappable methods the validation system does not need to be closely
+    coupled to the Model class. Similarly with Controllers, authentication
+    could happen before <methodname>serve</methodname> is called and the
+    wrapping authentication class can subvert a request by redirecting to a
+    login page. Further discussion on wrappable methods see <xref
+    linkend="section.core.wrappable-methods" /></para>
+
+    <para>The final major unit of functionality exposed in
+    <classname>Object</classname> is a system for realizing <emphasis><link
+    linkend="section.core.annotations">Recess Annotations</link></emphasis>.
+    Annotations give programmers the ability to work in a more declarative,
+    meta-programming style. What does this mean? Rather than telling PHP how
+    to do something, you tell Recess what you want with an annotation and it
+    is then up to Recess and the annotation's class to expand your declarative
+    statement into PHP. Annotations can written on three PHP constructs:
+    classes, methods, and properties. Because PHP does not have first-class
+    support for annotations, Recess Annotations are placed inside of
+    doccomments, comments that begin with <literal>/**</literal>, which are a
+    first-class construct in PHP available through PHP's Reflection API.
+    Annotations can make use of attached and wrappable methods to inject units
+    of functionality. For further discussion on annotations see <xref
+    linkend="section.core.annotations" /></para>
+
+    <para>Underlying <link
+    linkend="section.core.attached-methods"><emphasis>attached
+    methods</emphasis></link>, <emphasis><link
+    linkend="section.core.wrappable-methods">wrappable
+    methods</link></emphasis>, and <link
+    linkend="section.core.annotations"><emphasis>annotations</emphasis></link>
+    is fundamental data structure, the <classname>ClassDescriptor</classname>.
+    The <classname>ClassDescriptor</classname> is where the information used
+    to describe Recess' language features like attached methods are stored.
+    There is one <classname>ClassDescriptor</classname> per class and, when
+    Recess is running in production mode, this data-structure is computed once
+    and cached. Sub-classes of <classname>Object</classname> can use the class
+    descriptor as a store for computed data structures by overriding hooks in
+    the Object class. For example, <classname>Model</classname> uses this
+    cache to hold database information and the meta-data for relationships,
+    and <classname>Controller</classname> uses it to store routing
+    information. Annotations expand to 'shape' a class'
+    <classname>ClassDescriptor</classname>. The following section describes
+    the hooks available to sub-classes of <classname>Object</classname> for
+    shaping class descriptors.</para>
+
+    <section>
+      <title xml:id="section.core.class-descriptor">Hooks in
+      <classname>Object</classname> while expanding Annotations and building
+      <classname>ClassDescriptor</classname></title>
+
+      <para><emphasis>Initialize Class Descriptor</emphasis> - A class's
+      descriptor may need to initialize certain properties. For example
+      <classname>Model</classname>'s descriptor has default properties
+      initialized for database table based on convention by the name of the
+      class, primary key, etc.</para>
+
+      <para><code language="php">protected static function
+      initClassDescriptor($class) - </code>Parameters:
+      <parameter>$class</parameter> is the class' name as a string. Returns a
+      <classname>ClassDescriptor</classname>.</para>
+
+      <para><emphasis>Shape Descriptor with Method</emphasis> - Prior to
+      expanding the annotations for a class method this hook is called to give
+      a subclass an opportunity to manipulate its descriptor. For example
+      Controller uses this in able to create default routes for methods which
+      do not have explicit Route annotations.</para>
+
+      <para><code language="php">protected static function
+      shapeDescriptorWithMethod($class, $method, $descriptor,
+      $annotations)</code>- Parameters: <parameter>$class</parameter> string
+      name of class whose descriptor is being initialized.
+      <parameter>$method</parameter> is of type
+      <classname>ReflectionMethod</classname>.
+      <parameter>$descriptor</parameter> is the
+      <classname>ClassDescriptor</classname>.
+      <parameter>$annotations</parameter> is an array of
+      <classname>Annotation</classname>s found on method. Returns a
+      <classname>ClassDescriptor</classname>.</para>
+
+      <para><emphasis>Shape Descriptor with Property</emphasis> - Prior to
+      expanding the annotations for a class property this hook is called to
+      give a subclass an opportunity to manipulate its class descriptor. For
+      example <classname>Model</classname> uses this to initialize the
+      datastructure for a property before a !Column annotation applies
+      metadata.</para>
+
+      <para><code language="php">protected static function
+      shapeDescriptorWithProperty($class, $property, $descriptor,
+      $annotations)</code> - Parameters: <parameter>$class</parameter> string
+      name of class whose descriptor is being initialized.
+      <parameter>$property</parameter> is of type
+      <classname>ReflectionProperty</classname>.
+      <parameter>$descriptor</parameter> is the
+      <classname>ClassDescriptor</classname>.
+      <parameter>$annotations</parameter> is an array of
+      <classname>Annotation</classname>s found on property. Returns a
+      <classname>ClassDescriptor</classname>.</para>
+
+      <para><emphasis>Finalize Class Descriptor</emphasis> - After all methods
+      and properties of a class have been visited and annotations expanded
+      this hook provides a sub-class a final opportunity to do post-processing
+      and sanitization. For example, <classname>Model</classname> uses this
+      hook to ensure consistency between <classname>Model</classname>'s
+      descriptor and the actual database table's columns.</para>
+
+      <para><code language="php">protected static function
+      finalClassDescriptor($class, $descriptor)</code> - Parameters:
+      <parameter>$class</parameter> is the class' name as a string.
+      <parameter>$descriptor</parameter> is the
+      <classname>ClassDescriptor</classname> after all properties and methods
+      have been visited. Returns a
+      <classname>ClassDescriptor</classname>.</para>
+    </section>
   </section>
 
   <section>
-    <title>Attached Methods</title>
+    <title xml:id="section.core.attached-methods">Attached Methods</title>
 
-    <para></para>
+    <para>Sub-classes of <classname>Object</classname> allow you to attach
+    methods to a class dynamically at run-time. Once a method has been
+    attached all instances of that class in existance, or instantiated
+    thereafter, will have the method. Attached methods also show up with
+    reflection when using the <classname>RecessReflectionClass</classname>.
+    Example usages of attached methods are: the implementation of relationship
+    methods on models, and wrappable methods. To attach a method to a class
+    you must first define the target method on another class. The following
+    detailed example demonstrates attaching a method to a class.</para>
+
+    <para><example>
+        <title>Attaching Methods to a sub-class of
+        <classname>Object</classname></title>
+
+        <para><programlisting language="php">&lt;?php
+include('core-bootstrap.php');
+
+Library::import('recess.lang.Object');
+
+class MyRecessObject extends Object {} <co xml:id="attached-method.co1" />
+
+class AttachedBehavior { <co revision="" xml:id="attached-methods.co2"
+              xml:lang="" />
+  public $word = 'static';
+  function targetMethod(Object $object<co revision="" xml:base=""
+              xml:id="attached-method.co3" />, $lastWord) { echo "Hello, $this-&gt;word PHP $lastWord!"; }
+}
+
+$targetInstance = new AttachedBehavior();
+$targetInstance-&gt;word = 'dynamic'; <co role="" xml:base=""
+              xml:id="attached-methods.co4" />
+MyRecessObject::attachMethod('MyRecessObject', 'attachedMethod', $targetInstance, 'targetMethod'); <co
+              xml:id="attached-methods.co5" />
+
+$myInstance = new MyRecessObject();
+$myInstance-&gt;attachedMethod('world'); <co xml:id="attached-methods.co6" />
+
+// Output: Hello, dynamic PHP world!</programlisting></para>
+      </example></para>
+
+    <para><calloutlist>
+        <callout arearefs="attached-method.co1">
+          <para>The class we will attach a method to is
+          <classname>MyRecessObject</classname>, it is important that it
+          extends Recess' <classname>Object</classname> class.</para>
+        </callout>
+
+        <callout arearefs="attached-method.co2">
+          <para>The class <classname>AttachedBehavior</classname> contains the
+          method we will attach to <classname>MyRecessObject</classname>:
+          <methodname>targetMethod</methodname>. Attached methods must be
+          defined within a class because attaching requires an instance of the
+          class as well as the method name.</para>
+        </callout>
+
+        <callout arearefs="attached-method.co3">
+          <para>Notice that attached methods always take an instance of the
+          class they are attached to as their first parameter. Subsequent
+          parameters are the parameters to be passed by the attached method's
+          call (6).</para>
+        </callout>
+
+        <callout arearefs="attached-method.co4">
+          <para>We've created an instance of the
+          <classname>AttachedBehavior</classname> class and given it some
+          state. The ability to provide the method with some context is key to
+          being able to do interesting things with attached methods on a
+          class-by-class basis. For example, when a !HasMany or !BelongsTo
+          annotation expands it attaches multiple methods to the class the
+          annotation is defined on. Each of these target methods are defined
+          on an instance of <classname>HasManyRelationship</classname> or
+          <classname>BelongsToRelationship</classname> that have additional
+          state, such as the relationship name, related table, foreign key,
+          etc, that are vital state for the attached methods. One way to think
+          of this is a poor man's closure.</para>
+        </callout>
+
+        <callout arearefs="attached-method.co5">
+          <para>The call to the static method
+          <methodname>attachMethod</methodname> is where the magic mapping
+          happens. <classname>Object</classname> defines
+          <methodname>attachedMethod</methodname> which has four parameters.
+          The first is an unfortunate one: the string classname the method is
+          being attached to<footnote>
+              <para>This parameter a result of PHP &lt; 5.3's lack of late
+              static binding. Even though the static method is invoked on the
+              class we are attempting to attach the method to,
+              <classname>MyRecessObject</classname>, until PHP 5.3 there is no
+              means for determining the sub-class it was called on. After
+              PHP5.3 this limitation has been fixed.</para>
+            </footnote>. The second parameter is the name we are assigning to
+          the new method on our class. So, in this example the method's name
+          will be <methodname>attachedMethod().</methodname> Next we provide
+          the target the attached method will call. We specify this by passing
+          an instance of an object, and the string name of the method being
+          attached.</para>
+        </callout>
+
+        <callout arearefs="attached-method.co6">
+          <para>We can now call <methodname>attachedMethod</methodname> on an
+          instance of <classname>MyRecessObject</classname> and it will map to
+          <methodname>targetMethod</methodname> on our
+          <classname>AttachedBehavior</classname> instance.</para>
+        </callout>
+      </calloutlist></para>
+
+    <para>Underneath the covers there is some simple indirection taking place
+    in <classname>Object</classname>'s <methodname>__call</methodname> method
+    that maps the attached method call to the target method based on entries
+    in the <classname>ClassDescriptor</classname>. If methods are attached
+    during the process which sub-classes of <classname>Object</classname>
+    expand annotations and build-up <classname>ClassDescriptor</classname>s
+    then the target instance, its state, and the mapping will be automatically
+    cached in production mode. For more information on
+    <classname>ClassDescriptor</classname>, see <xref
+    linkend="section.core.class-descriptors" /></para>
   </section>
 
   <section>
-    <title>Wrapped Methods and <classname>IWrapper</classname></title>
+    <title> <literal>!Wrappable</literal> Methods and the
+    <classname>IWrapper</classname> Interface</title>
 
-    <para></para>
+    <para>Sub-classes of <classname>Object</classname> can introduce
+    extensibility points with 'wrappable' methods. A wrappable method can be
+    dynamically 'wrapped' by other methods which are called prior to or after
+    the wrapped method.</para>
+
+    <para>Wrappable methods can be declared using a Wrappable annotation on
+    the method being wrapped. The annotation takes a single parameter, which
+    is the desired name of the wrapped method. By convention the native PHP
+    method being wrapped is prefixed with 'wrapped'.</para>
+
+    <para><programlisting language="php">class Foobar {
+    /** !Wrappable foo * /
+    function wrappedFoo() { ... }
+}
+$obj-&gt;foo();</programlisting>Example usage of wrappable methods and a
+    hypothetical <classname>EchoWrapper</classname> which wraps a method by
+    <methodname>echo</methodname>'ing strings before and after
+    invocation.</para>
+
+    <para><programlisting language="php">class Model extends Object {
+    /** !Wrappable insert * /
+    function wrappedInsert() { echo "Wrapped (insert)\n"; }
+}
+
+/** !EchoWrapper insert, Before: "Hello", After: "World" * /
+class Person extends Model {}
+$person = new Person();
+$person-&gt;insert();  
+
+// Output:
+Hello
+Wrapped (insert)
+World</programlisting></para>
   </section>
 
   <section>
-    <title>Annotations</title>
+    <title xml:id="section.core.annotations">Annotations</title>
 
     <para>Annotations can be introduced by extending the abstract class
     <classname>recess.lang.Annotation</classname>. <emphasis>User defined
@@ -130,7 +525,7 @@ function isFor() { return Annotation::FOR_METHOD | Annotation::FOR_PROPERTY; }</
     class marked as <literal>!Wrappable</literal></para>
 
     <section>
-      <title>Writing an Annotation</title>
+      <title>Authoring an Annotation</title>
 
       <para>To demonstrate authoring a custom annotation, let's create an
       annotation for methods on a <classname>Controller</classname> that
@@ -231,8 +626,8 @@ class CookieProtectedAnnotation extends Annotation {
       <literal>'bar'</literal>.</para>
 
       <para><note>
-          <para>In the <methodname>init</methodname> method of
-          <classname>Annotation</classname>s all array keys are converted to
+          <para>During the <methodname>init</methodname> method of
+          <classname>Annotation</classname> all array keys are converted to
           lowercase.</para>
         </note></para>
     </section>

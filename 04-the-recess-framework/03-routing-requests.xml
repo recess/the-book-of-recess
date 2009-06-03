@@ -1,74 +1,119 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter xmlns="http://docbook.org/ns/docbook"
-		 xmlns:xl="http://www.w3.org/1999/xlink"
-		 version="5.0"
-         xml:id="recess.04.03">
-<title>Routing Requests</title>
-<indexterm>
-	<primary>Routing</primary>
-</indexterm>
-<indexterm>
-	<primary>!Route</primary>
-</indexterm>
-<section>
-	<title>Simple Routing Techniques</title>
-	<section>
-		<title>What is routing?</title>
-		<para>Routing is the machinery that takes a requested URL path like <literal>/product/23</literal> and ‘routes’ or dispatches control to a specific point in your application. In most frameworks, including Recess, this is to a method in a <classname>Controller</classname>. Using a framework that has fast, flexible, RESTful routing is important because URLs are fundamental to how people, search engines, and web services interact with you web application.</para>	
-		<para>Let’s dive right into some code and take a look at how we can set up a route to a method in a controller:</para>
-<example>
-<title>A simple GET route.</title>
-<programlisting language="php"><![CDATA[<?php
+<chapter version="5.0" xml:id="recess.04.03"
+         xmlns="http://docbook.org/ns/docbook"
+         xmlns:xl="http://www.w3.org/1999/xlink"
+         xmlns:ns5="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns4="http://www.w3.org/2000/svg"
+         xmlns:ns3="http://www.w3.org/1999/xhtml"
+         xmlns:ns="http://docbook.org/ns/docbook">
+  <title>Routing Requests</title>
+
+  <indexterm>
+    <primary>Routing</primary>
+  </indexterm>
+
+  <indexterm>
+    <primary>!Route</primary>
+  </indexterm>
+
+  <section>
+    <title>Simple Routing Techniques</title>
+
+    <section>
+      <title>What is routing?</title>
+
+      <para>Routing is the machinery that takes a requested URL path like
+      <literal>/product/23</literal> and ‘routes’ or dispatches control to a
+      specific point in your application. In most frameworks, including
+      Recess, this is to a method in a <classname>Controller</classname>.
+      Using a framework that has fast, flexible, RESTful routing is important
+      because URLs are fundamental to how people, search engines, and web
+      services interact with you web application.</para>
+
+      <para>Let’s dive right into some code and take a look at how we can set
+      up a route to a method in a controller:</para>
+
+      <example>
+        <title>A simple GET route.</title>
+
+        <programlisting language="php">&lt;?php
 TestController extends Controller {
     /** !Route GET, /hello/world */
     function aMethod() {
          echo 'Hello PHP Community!'; exit;
     }
-}]]></programlisting>
-</example>
-<indexterm>
-	<primary>RouteAnnotation</primary>
-</indexterm>
-<para>What’s that funny stuff above the function? It’s a Recess <classname>RouteAnnotation</classname>.  Recess annotations may look a bit strange but they’re really simple. They are written inside of <literal>doccomments</literal>, a language construct in PHP which begins with a forward slash and two asterisks. Recess annotations are banging. Literally, they start with an exclamation point, or, BANG! (as opposed to the @-symbol if you’re used to Java style annotations). The Route annotation has two parameters. The first is the HTTP method such as GET, POST, PUT, or DELETE and the second is the URL path.</para>
-</section>
+}</programlisting>
+      </example>
 
-<section>
-<title>Parametric Routes</title>
-<indexterm>
-	<primary>Routing</primary>
-	<secondary>Parametric</secondary>
-</indexterm>
-<indexterm>
-	<primary>Routing</primary>
-	<secondary>Parameters</secondary>
-</indexterm>
-<para>When a part of the route is preceded with a dollar sign it becomes a method parameter. Here is an example:</para>
+      <indexterm>
+        <primary>RouteAnnotation</primary>
+      </indexterm>
 
-<example>
-<title>Simple parametric routes using route $parameters</title>
-<programlisting language="php"><![CDATA[<?php
+      <para>What’s that funny stuff above the function? It’s a Recess
+      <classname>RouteAnnotation</classname>. Recess annotations may look a
+      bit strange but they’re really simple. They are written inside of
+      <literal>doccomments</literal>, a language construct in PHP which begins
+      with a forward slash and two asterisks. Recess annotations are banging.
+      Literally, they start with an exclamation point, or, BANG! (as opposed
+      to the @-symbol if you’re used to Java style annotations). The Route
+      annotation has two parameters. The first is the HTTP method such as
+      <literal>GET</literal>, <literal>POST</literal>, <literal>PUT</literal>,
+      or <literal>DELETE</literal> and the second is the URL path.</para>
+    </section>
+
+    <section>
+      <title>Parametric Routes</title>
+
+      <indexterm>
+        <primary>Routing</primary>
+
+        <secondary>Parametric</secondary>
+      </indexterm>
+
+      <indexterm>
+        <primary>Routing</primary>
+
+        <secondary>Parameters</secondary>
+      </indexterm>
+
+      <para>When a part of the route is preceded with a dollar sign it becomes
+      a method parameter. Here is an example:</para>
+
+      <example>
+        <title>Simple parametric routes using route $parameters</title>
+
+        <programlisting language="php">&lt;?php
 class TestController extends Controller {
     /** !Route GET, /hello/$first/$last */
     function aMethod($first, $last) {
          echo "Hello $first $last!"; exit;
     }
-}]]></programlisting>
-</example>
+}</programlisting>
+      </example>
 
-<para>Now if we browse to <literal>/hello/PHP/Community</literal> the browser will print “Hello PHP Community”. Parametric routes are often used with ID or primary key columns in a database. For example, if I were building a store in Recess I might have a Product Details page that used a route like: <literal>!Route GET, /product/$id</literal></para>
-</section>
+      <para>Now if we browse to <literal>/hello/PHP/Community</literal> the
+      browser will print “Hello PHP Community”. Parametric routes are often
+      used with ID or primary key columns in a database. For example, if I
+      were building a store in Recess I might have a Product Details page that
+      used a route like: <literal>!Route GET, /product/$id</literal></para>
+    </section>
 
-<section>
-<title>Multiple Routes per Method</title>
-<indexterm>
-	<primary>Routing</primary>
-	<secondary>Mutltiple per method</secondary>
-</indexterm>
-<para>Controller methods can have multiple routes. For example, we can combine the previous two methods into one:</para>
+    <section>
+      <title>Multiple Routes per Method</title>
 
-<example>
-<title>Multiple routes on a single controller method</title>
-<programlisting language="php"><![CDATA[<?php
+      <indexterm>
+        <primary>Routing</primary>
+
+        <secondary>Mutltiple per method</secondary>
+      </indexterm>
+
+      <para>Controller methods can have multiple routes. For example, we can
+      combine the previous two methods into one:</para>
+
+      <example>
+        <title>Multiple routes on a single controller method</title>
+
+        <programlisting language="php">&lt;?php
 class TestController extends Controller {
     /** 
      * !Route GET, /hello/world
@@ -77,128 +122,205 @@ class TestController extends Controller {
     function aMethod($first = "PHP", $last = "Community") {
          echo "Hello $first $last!"; exit;
     }
-}]]></programlisting>
-</example>
+}</programlisting>
+      </example>
 
-<para>If you accidentally add a route that conflicts with another somewhere else in your app Recess will tell you where the conflict occurred. The Recess Diagnostics error screen shows you where in your code the conflict occurred.</para>
+      <para>If you accidentally add a route that conflicts with another
+      somewhere else in your app Recess will tell you where the conflict
+      occurred. The Recess Diagnostics error screen shows you where in your
+      code the conflict occurred.</para>
+    </section>
 
-</section>
+    <section>
+      <title>Keeping it DRY</title>
 
-<section>
-<title>Keeping it DRY</title>
+      <para>If you’re familiar with Cake or Rails you may be wondering what is
+      the upside to specifying routes in-line with my methods? The long and
+      short of it is, it is more DRY. With a separate routes file you must
+      duplicate the name of a controller and method which a route maps to. So
+      if you refactor your controller code you must remember to go and update
+      your routes file as well. By keeping the two together it’s never a
+      mystery what URL will take you to the controller method you’re working
+      on.</para>
+    </section>
+  </section>
 
-     <para>If you’re familiar with Cake or Rails you may be wondering what is the upside to specifying routes in-line with my methods? The long and short of it is, it is more DRY. With a separate routes file you must duplicate the name of a controller and method which a route maps to. So if you refactor your controller code you must remember to go and update your routes file as well. By keeping the two together it’s never a mystery what URL will take you to the controller method you’re working on.</para>
-</section>
-</section>
+  <section>
+    <title>Advanced Routing Techniques</title>
 
-<section>
-	<title>Advanced Routing Techniques</title>
-	<section>
-		<title>HTTP METHOD Aware Routes for RESTful Routing</title>
+    <section>
+      <title>HTTP METHOD Aware Routes for RESTful Routing</title>
 
-		<para>Routing in Recess is HTTP method-aware. To demonstrate this we can have two controller methods mapped to the same URL but differing HTTP METHODs:</para>
+      <para>Routing in Recess is HTTP method-aware. To demonstrate this we can
+      have two controller methods mapped to the same URL but differing HTTP
+      METHODs:</para>
 
-<example>
-<title>Routing with different HTTP Methods</title>
-<programlisting language="php"><![CDATA[<?php
+      <example>
+        <title>Routing with different HTTP Methods</title>
+
+        <programlisting language="php">&lt;?php
 class TestController extends Controller {
     /** !Route GET, /same/url */
     function comingFromGet() {
-         echo '<form action="/same/url" method="post">';
-         echo '<input type="submit" /></form>'; exit;
+         echo '&lt;form action="/same/url" method="post"&gt;';
+         echo '&lt;input type="submit" /&gt;&lt;/form&gt;'; exit;
     }
     /** !Route POST, /same/url */
     function comingFromPost() {
          echo 'POSTed!'; exit;
     }
-}]]></programlisting>
-</example>
+}</programlisting>
+      </example>
 
-<para>The first method will handle a GET to the url <literal>/same/url</literal> and the second a POST to <literal>/same/url</literal>. For an actual demonstration of this running check out the screen cast at minute 7:00! Having a routing system aware of HTTP methods is one way in which Recess helps simplify RESTful application develop in PHP.</para>
-</section>
-<section>
-<title>Relative Routes</title>
-<indexterm>
-	<primary>Routing</primary>
-	<secondary>Relative vs. Absolute</secondary>
-</indexterm>
-<indexterm>
-	<primary>!RoutePrefix</primary>
-</indexterm>
-<para>In Recess, Routes can be relative to their context. What does that even mean? There are three logical levels of organization for the purposes of Routing. The most general level is the application. Recess allows multiple applications to be installed at once a la Django. Within an application there may be multiple controllers and a controller can have many methods.</para>
+      <para>The first method will handle a GET to the url
+      <literal>/same/url</literal> and the second a POST to
+      <literal>/same/url</literal>. For an actual demonstration of this
+      running check out the screen cast at minute 7:00! Having a routing
+      system aware of HTTP methods is one way in which Recess helps simplify
+      RESTful application develop in PHP.</para>
+    </section>
 
-<para>Relative routes are different from absolute routes in that they do not begin with a forward slash. Check out the <literal>!Route</literal> annotation for the world method below. By adding a <literal>!RoutesPrefix</literal> annotation to a controller we will prepend any relative route in the controller with <literal>hello/</literal> so we can now reach the world method using <literal>hello/world/</literal>.</para>
+    <section>
+      <title>Relative Routes</title>
 
-<example>
-<title>Relative routing in controller routes to <literal>hello/world</literal>.</title>
-<programlisting language="php"><![CDATA[<?php
+      <indexterm>
+        <primary>Routing</primary>
+
+        <secondary>Relative vs. Absolute</secondary>
+      </indexterm>
+
+      <indexterm>
+        <primary>!RoutePrefix</primary>
+      </indexterm>
+
+      <para>In Recess, Routes can be relative to their context. What does that
+      even mean? There are three logical levels of organization for the
+      purposes of Routing. The most general level is the application. Recess
+      allows multiple applications to be installed at once a la Django. Within
+      an application there may be multiple controllers and a controller can
+      have many methods.</para>
+
+      <para>Relative routes are different from absolute routes in that they do
+      not begin with a forward slash. Check out the <literal>!Route</literal>
+      annotation for the world method below. By adding a
+      <literal>!RoutesPrefix</literal> annotation to a controller we will
+      prepend any relative route in the controller with
+      <literal>hello/</literal> so we can now reach the world method using
+      <literal>hello/world/</literal>.</para>
+
+      <example>
+        <title>Relative routing in controller routes to
+        <literal>hello/world</literal>.</title>
+
+        <programlisting language="php">&lt;?php
 /** !RoutesPrefix hello/ */
 class TestController extends Controller {
     /** !Route GET, world */
     function world() {
          echo 'Hello World!'; exit;
     }
-}]]></programlisting>
-</example>
-</section>
+}</programlisting>
+      </example>
+    </section>
 
-<section>
-<title>Implicit Routes</title>
-<indexterm>
-	<primary>Routing</primary>
-	<secondary>Implicit</secondary>
-</indexterm>
+    <section>
+      <title>Implicit Routes</title>
 
-<para>If you’re familiar with Rails or Cake you’re probably wondering why I needed specify routes for the world and universe methods. In many frameworks these routes would be implicit. In Recess they can be implicit too. We can delete the route annotations and still access the methods in the same way. The important difference between the way implicit routes work in Recess and other frameworks is that Recess does not rely on the name of a controller to determine the route, but rather on the routing prefixes of the application and the controller.</para>
+      <indexterm>
+        <primary>Routing</primary>
 
-<example>
-<title>Implicit routing in controller routes to <literal>hello/world</literal>.</title>
-<programlisting language="php"><![CDATA[<?php
+        <secondary>Implicit</secondary>
+      </indexterm>
+
+      <para>If you’re familiar with Rails or Cake you’re probably wondering
+      why I needed specify routes for the world and universe methods. In many
+      frameworks these routes would be implicit. In Recess they can be
+      implicit too. We can delete the route annotations and still access the
+      methods in the same way. The important difference between the way
+      implicit routes work in Recess and other frameworks is that Recess does
+      not rely on the name of a controller to determine the route, but rather
+      on the routing prefixes of the application and the controller.</para>
+
+      <example>
+        <title>Implicit routing in controller routes to
+        <literal>hello/world</literal>.</title>
+
+        <programlisting language="php">&lt;?php
 /** !RoutesPrefix hello/ */
 class TestController extends Controller {
     function world() {
          echo 'Hello World!'; exit;
     }
-}]]></programlisting>
-</example>
+}</programlisting>
+      </example>
 
-<para>Because we've set up a route prefix for the <classname>TestsController</classname> we can reach the world method by using the URL: <literal>hello/world</literal>. Implicit routes can have parameters too.</para>
+      <para>Because we've set up a route prefix for the
+      <classname>TestsController</classname> we can reach the world method by
+      using the URL: <literal>hello/world</literal>. Implicit routes can have
+      parameters too.</para>
 
-<example>
-<title>Implicit routing with parameters.</title>
-<programlisting language="php"><![CDATA[<?php
+      <example>
+        <title>Implicit routing with parameters.</title>
+
+        <programlisting language="php">&lt;?php
 /** !RoutesPrefix hello/ */
 class TestController extends Controller {
     function world($first, $last) {
          echo "Hello $first $last!"; exit;
     }
-}]]></programlisting>
-</example>
+}</programlisting>
+      </example>
 
-<para>Now, <literal>hello/world/Michael/Scott</literal> will rest in the world method being called and printing "Hello Michael Scott!"</para>
-</section>
+      <para>Now, <literal>hello/world/Michael/Scott</literal> will rest in the
+      world method being called and printing "Hello Michael Scott!"</para>
+    </section>
 
-<section>
-<title>Recess Tools &amp; Routing</title>
-<indexterm>
-     <primary>Recess Tools</primary>
-     <secondary>Routing</secondary>
-</indexterm>
-     
-<para>With routes being sprinkled throughout controllers don’t you lose the ability to look in a single place and get a sense of all of the routes in your application?</para>
+    <section>
+      <title>Recess Tools &amp; Routing</title>
 
-<para>Recess Tools is first class Recess application that runs in the browser and is designed to help you along in development mode writing apps. With Tools we can see all of the routes explicit and implicit, relative and absolute, for any given application. The table lists the HTTP method and route corresponding which map to a controller class and method. With Recess Tools you can get a global picture of Routes in your application.</para>
-</section>
+      <indexterm>
+        <primary>Recess Tools</primary>
 
-<section>
-<title>Routing Performance</title>
-<indexterm>
-	<primary>Routing</primary>
-	<secondary>Performance</secondary>
-</indexterm>
-<para>How in the world can you expect to get any kind of performance out of an app when you have to reflect over every single controller in order to know all routes?</para>
+        <secondary>Routing</secondary>
+      </indexterm>
 
-<para>This is a great question.  Routing changes as shown in the screencast take immediate effect. This is because the screencast was taken while Recess was in development mode. By switching to deployment mode the routing computation would only have to happen once because the routes won’t change. On the first request in deployment mode Recess will build up the routing data structure, a tree, and cache it either to disk or memory depending on what your server has available.  Subsequent requests simply unserialize the routing tree and Recess is off to the races. Perf has been a top priority while developing Recess and this technique enables great performance while allowing your code to stay simple, nimble, and DRY.</para>
-</section>
-</section>
+      <para>With routes being sprinkled throughout controllers don’t you lose
+      the ability to look in a single place and get a sense of all of the
+      routes in your application?</para>
+
+      <para>Recess Tools is first class Recess application that runs in the
+      browser and is designed to help you along in development mode writing
+      apps. With Tools we can see all of the routes explicit and implicit,
+      relative and absolute, for any given application. The table lists the
+      HTTP method and route corresponding which map to a controller class and
+      method. With Recess Tools you can get a global picture of Routes in your
+      application.</para>
+    </section>
+
+    <section>
+      <title>Routing Performance</title>
+
+      <indexterm>
+        <primary>Routing</primary>
+
+        <secondary>Performance</secondary>
+      </indexterm>
+
+      <para>How in the world can you expect to get any kind of performance out
+      of an app when you have to reflect over every single controller in order
+      to know all routes?</para>
+
+      <para>This is a great question. Routing changes as shown in the
+      screencast take immediate effect. This is because the screencast was
+      taken while Recess was in development mode. By switching to deployment
+      mode the routing computation would only have to happen once because the
+      routes won’t change. On the first request in deployment mode Recess will
+      build up the routing data structure, a tree, and cache it either to disk
+      or memory depending on what your server has available. Subsequent
+      requests simply unserialize the routing tree and Recess is off to the
+      races. Perf has been a top priority while developing Recess and this
+      technique enables great performance while allowing your code to stay
+      simple, nimble, and DRY.</para>
+    </section>
+  </section>
 </chapter>
