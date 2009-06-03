@@ -47,6 +47,7 @@ fi
 
 cp -Rf imgs pub/html
 cp style/* pub/html
+cp -Rf $xsl/images pub/html
 
 java \
 	-Djava.endorsed.dirs=$xalan  \

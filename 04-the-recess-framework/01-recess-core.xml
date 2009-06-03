@@ -242,7 +242,7 @@ Library::addClassPath($_ENV['dir.bootstrap'] . 'apps/');
     shaping class descriptors.</para>
 
     <section>
-      <title xml:id="section.core.class-descriptor">Hooks in
+      <title xml:id="section.core.class-descriptors">Hooks in
       <classname>Object</classname> while expanding Annotations and building
       <classname>ClassDescriptor</classname></title>
 
@@ -330,13 +330,12 @@ Library::addClassPath($_ENV['dir.bootstrap'] . 'apps/');
 
         <para><programlisting language="php">&lt;?php
 include('core-bootstrap.php');
-
 Library::import('recess.lang.Object');
 
 class MyRecessObject extends Object {} <co xml:id="attached-method.co1" />
 
-class AttachedBehavior { <co revision="" xml:id="attached-methods.co2"
-              xml:lang="" />
+class AttachedBehavior { <co revision="" xml:base=""
+              xml:id="attached-method.co2" xml:lang="" />
   public $word = 'static';
   function targetMethod(Object $object<co revision="" xml:base=""
               xml:id="attached-method.co3" />, $lastWord) { echo "Hello, $this-&gt;word PHP $lastWord!"; }
@@ -344,12 +343,12 @@ class AttachedBehavior { <co revision="" xml:id="attached-methods.co2"
 
 $targetInstance = new AttachedBehavior();
 $targetInstance-&gt;word = 'dynamic'; <co role="" xml:base=""
-              xml:id="attached-methods.co4" />
+              xml:id="attached-method.co4" />
 MyRecessObject::attachMethod('MyRecessObject', 'attachedMethod', $targetInstance, 'targetMethod'); <co
-              xml:id="attached-methods.co5" />
+              xml:id="attached-method.co5" />
 
 $myInstance = new MyRecessObject();
-$myInstance-&gt;attachedMethod('world'); <co xml:id="attached-methods.co6" />
+$myInstance-&gt;attachedMethod('world'); <co xml:id="attached-method.co6" />
 
 // Output: Hello, dynamic PHP world!</programlisting></para>
       </example></para>
@@ -433,42 +432,274 @@ $myInstance-&gt;attachedMethod('world'); <co xml:id="attached-methods.co6" />
   </section>
 
   <section>
-    <title> <literal>!Wrappable</literal> Methods and the
+    <title xml:id="section.core.wrappable-methods">
+    <literal>!Wrappable</literal> Methods and the
     <classname>IWrapper</classname> Interface</title>
 
-    <para>Sub-classes of <classname>Object</classname> can introduce
-    extensibility points with 'wrappable' methods. A wrappable method can be
-    dynamically 'wrapped' by other methods which are called prior to or after
-    the wrapped method.</para>
+    <para>Wrappable methods are special methods on an Object class whose
+    invocations be dynamically 'wrapped' with new behavior before and/or after
+    the invocation of the wrapped method. For Python coders method wrappers
+    are similar to method decorators, for Aspect-Oriented folks this is a poor
+    man's join-point, for everyone else wrappable methods are a flexible
+    extensibility point where you can flexibly inject new behavior.</para>
 
-    <para>Wrappable methods can be declared using a Wrappable annotation on
-    the method being wrapped. The annotation takes a single parameter, which
-    is the desired name of the wrapped method. By convention the native PHP
-    method being wrapped is prefixed with 'wrapped'.</para>
+    <para>Consider inheritance in traditional object-oriented programming. By
+    overriding a method in a sub-class you can effectively wrap behavior
+    around the parent class' method call. Here is some example code:</para>
 
-    <para><programlisting language="php">class Foobar {
-    /** !Wrappable foo * /
-    function wrappedFoo() { ... }
-}
-$obj-&gt;foo();</programlisting>Example usage of wrappable methods and a
-    hypothetical <classname>EchoWrapper</classname> which wraps a method by
-    <methodname>echo</methodname>'ing strings before and after
-    invocation.</para>
+    <para><example>
+        <title>Wrapping a Method Using Traditional Inheritance</title>
 
-    <para><programlisting language="php">class Model extends Object {
-    /** !Wrappable insert * /
-    function wrappedInsert() { echo "Wrapped (insert)\n"; }
+        <para><programlisting language="php">&lt;?php
+class MyBaseClass {
+    function foo() { <co xml:base="" xml:id="inheritance.wrapping.co1" />
+        echo "Foo!\n";
+        return true;
+    }
 }
 
-/** !EchoWrapper insert, Before: "Hello", After: "World" * /
-class Person extends Model {}
-$person = new Person();
-$person-&gt;insert();  
+class MySubClass extends MyBaseClass {
+    function echoFoo() { <co xml:id="inheritance.wrapping.co2" />
+        echo "Before!\n"; 
+        $result = parent::foo(); <co xml:id="inheritance.wrapping.co3"
+              xml:lang="" />
+        echo "After!\n"; <co xml:id="inheritance.wrapping.co3" xml:lang="" />
+        return $result;
+    }
+}
+
+$obj = new MySubclass();
+$obj-&gt;echoFoo();
+// Output:
+//  Before!
+//  Foo!
+//  After!
+?&gt;</programlisting></para>
+      </example></para>
+
+    <para><calloutlist>
+        <callout arearefs="inheritance.wrapping.co1">
+          <para><classname>MyBaseClass</classname> defines a method
+          <methodname>foo</methodname> that will be 'wrapped' using
+          inheritance.</para>
+        </callout>
+
+        <callout arearefs="???">
+          <para><methodname>foo</methodname> is overridden by
+          <classname>MySubClass</classname> and first echos a message.</para>
+        </callout>
+
+        <callout arearefs="???">
+          <para>Now, we call the 'wrapped', or in this case overridden, parent
+          class' <methodname>foo</methodname> method.</para>
+        </callout>
+
+        <callout arearefs="???">
+          <para>Finally, let's print an after message once the call to
+          <classname>MyBaseClass</classname>' foo has returned.</para>
+        </callout>
+      </calloutlist>In this simple example we've effectively wrapped
+    <classname>MyBaseClass</classname>' <methodname>foo</methodname> method
+    with some new behavior: we print 'Before!' and 'After!'
+    <methodname>foo</methodname> is called on instances of
+    <classname>MySubClass</classname>. What is so bad about pure
+    inheritance?</para>
+
+    <para><itemizedlist>
+        <listitem>
+          <para>In many cases: Nothing, when you can use it, use it! If you
+          can override methods to implement the functionality you need it is
+          the best, most efficient way of 'wrapping' behavior around a method.
+          Sometimes, though, it's painfully inflexible.</para>
+        </listitem>
+
+        <listitem>
+          <para>Inflexibility - Inheritance is heirarchical. Our goal in
+          <classname>MySubClass</classname> above was to print messages before
+          and after a method call. Let's say we also wanted to log the outcome
+          of the call to <methodname>foo</methodname>. We could create a new
+          <classname>LoggedSubClass</classname> class that subclasses
+          <classname>MySubClass</classname> and logs the result. Now we're
+          ready to deploy and we want to get rid of the wrapped echo'ing
+          behavior, to do so we must either change the parent class of
+          <classname>LoggedSubClass</classname> or comment/toggle out the
+          behavior in <classname>MySubClass</classname>.</para>
+        </listitem>
+
+        <listitem>
+          <para>Duplication of Code - Suppose we wanted to have printing and
+          logging capabilities wrap a bunch of method calls on a bunch of
+          other classes. Without reorganizing the entire inheritance hierarchy
+          we must duplicate similar code in many places around the
+          application.</para>
+        </listitem>
+      </itemizedlist></para>
+
+    <para>Other languages and programming paradigms have a fairly simple
+    solution to these limitations, as mentioned Python's decorators and AOP's
+    join-points, that Recess looked towards for inspiration. Recess' solution
+    is called 'Wrappable' methods. A <literal>!Wrappable</literal> method can
+    be wrapped by, (or decorated with), unbounded
+    <classname>IWrapper</classname>s that can be composed dynamically at
+    runtime. Let's take a look at how we could make
+    <methodname>foo</methodname> a wrapped method:</para>
+
+    <para><example>
+        <title>Specifying a Wrappable Method</title>
+
+        <para><programlisting language="php">&lt;?php
+include('core-bootstrap.php');
+Library::import('recess.lang.Object');
+
+class MyBaseClass extends Object {
+    /** !Wrappable foo */ <co xml:id="wrappable-method.co1" />
+    function wrappedFoo() { <co xml:id="wrappable-method.co2" />
+        echo "Foo!\n";
+        return true;
+    }
+}
+
+abstract class PrintWrapper implements IWrapper {}
+
+$obj = new MyBaseClass();
+$obj-&gt;foo(); <co xml:id="wrappable-method.co3" />
 
 // Output:
-Hello
-Wrapped (insert)
-World</programlisting></para>
+//  Foo!</programlisting></para>
+      </example><calloutlist>
+        <callout arearefs="wrappable-method.co1">
+          <para>The <literal>!Wrappable</literal> annotation can be used on
+          methods to create a 'wrappable' method. Notice that
+          <literal>foo</literal> follows <literal>!Wrappable</literal>, this
+          indicates that the wrappable method will be invoked with the name
+          <methodname>foo</methodname>.</para>
+        </callout>
+
+        <callout arearefs="wrappable-method.co2">
+          <para>The actual name of the method is wrappedFoo. The only
+          restriction on naming the wrapped method is that it can not have the
+          same name as the wrappable method. By convention Recess prefixes
+          wrapped methods with <literal>wrapped</literal>. I.E.
+          <methodname>foo()</methodname> wraps
+          <methodname>wrappedFoo()</methodname></para>
+        </callout>
+
+        <callout arch="" arearefs="wrappable-method.co3">
+          <para>We can now invoke a method <methodname>foo()</methodname> on
+          instances of <classname>MyBaseClass</classname>. Underneath the
+          covers wrappable methods are introduced using attached methods, for
+          more info on attached methods see <xref
+          linkend="section.core.attached-methods" />.</para>
+        </callout>
+      </calloutlist>Great! We have a wrappable foo method, now let's wrap it
+    with printing behavior. All we need to do is create a
+    <classname>PrintWrapper</classname> class that implements the
+    <classname>IWrapper</classname> interface.</para>
+
+    <para><example>
+        <title>Implementing IWrapper</title>
+
+        <para><programlisting language="php">... replace starting at previous example's definition of PrintWrapper ... 
+
+class PrintWrapper implements IWrapper {
+    function before($object, &amp;$arguments) { <co xml:id="iwrapper-co1" />
+        echo "Before!\n";
+    }
+
+    function after($object, $returns) { <co xml:id="iwrapper-co2" />
+        echo "After!\n";
+        return $returns;
+    }
+
+    function combine(IWrapper $wrapper) { return false; } <co
+              xml:id="iwrapper-co3" />
+}
+
+MyBaseClass::wrapMethod('MyBaseClass', 'foo', new PrintWrapper()); <co
+              xml:id="iwrapper-co4" />
+
+$obj = new MyBaseClass();
+$obj-&gt;foo(); <co xml:id="iwrapper-co5" />
+$obj-&gt;wrappedFoo(); <co xml:id="iwrapper-co6" />
+
+// Output:
+//  Before!
+//  Foo!
+//  After!
+//  Foo!</programlisting></para>
+      </example></para>
+
+    <para><classname>PrintWrapper</classname> implements the three methods
+    defined in the <classname>IWrapper</classname> interface. Let's discuss
+    each:<calloutlist>
+        <callout arearefs="iwrapper-co1">
+          <para><methodname>before</methodname> is called before the wrapped
+          method is called. It is passed a reference to the object the
+          wrappable method has been called on, as well as an array of the
+          arguments passed to the wrappable method. The arguments are passed
+          by reference so that wrappers can transform what is eventually
+          passed to the wrapped method. Not shown here, but if a wrapper's
+          <methodname>before</methodname> method returns a non-null value it
+          will short-circuit the call and return the value immediately to the
+          callee without calling the wrapped method.</para>
+        </callout>
+
+        <callout arearefs="iwrapper-co2">
+          <para><methodname>after</methodname> is called when the wrapped
+          method returns. It is passed a reference to the object the wrappable
+          method has been called on, and the return value of the wrapped
+          method. The value <methodname>after</methodname> returns is passed
+          to the calle so after has an opportunity to transform or replace the
+          value returned from the wrapped method.</para>
+        </callout>
+
+        <callout arearefs="iwrapper-co3">
+          <para><methodname>combine</methodname> is an optimization method
+          that will be discussed shortly.</para>
+        </callout>
+
+        <callout arearefs="iwrapper-co4">
+          <para>Here we use the static method
+          <methodname>wrapMethod</methodname> to wrap a
+          <classname>PrintWrapper</classname> instance on the wrappable method
+          <methodname>foo</methodname> on
+          <classname>MyBaseClass</classname>.</para>
+        </callout>
+
+        <callout arearefs="iwrapper-co5">
+          <para>By invoking foo we first work our way through
+          <classname>PrintWrapper</classname>'s
+          <methodname>before()</methodname>, then call
+          <classname>MyBaseClass</classname>'
+          <methodname>wrappedFoo()</methodname>, and finally back out to
+          <classname>PrintWrapper</classname>'s
+          <methodname>after()</methodname>.</para>
+        </callout>
+
+        <callout arearefs="iwrapper-co6">
+          <para>For the sake of being thorough we show that you can still call
+          <methodname>wrappedFoo</methodname> directly. Because wrapped
+          methods are implemented at the Recess Core library level and not
+          directly in PHP there is no way around this.</para>
+        </callout>
+      </calloutlist>We now have the same printing behavior as in our
+    Inheritanc example, but without using inheritance. The power and
+    flexibility of wrappable methods and wrappers is that multiple wrappers
+    can wrap a wrappable method. So we could create a logging wrapper that
+    also wraps <methodname>foo</methodname> and easily flip either wrapper on
+    or off, dynamically at run-time, without having to reorganize our class
+    hierarchy. Lets point out exactly how wrappable methods address the
+    downsides of inheritance:</para>
+
+    <para><itemizedlist>
+        <listitem>
+          <para>Inflexibility -</para>
+        </listitem>
+
+        <listitem>
+          <para>Code Duplication -</para>
+        </listitem>
+      </itemizedlist></para>
   </section>
 
   <section>
