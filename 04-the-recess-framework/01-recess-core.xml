@@ -160,7 +160,7 @@ Library::addClassPath($_ENV['dir.bootstrap'] . 'apps/');
     fact, if you are a developer feeling particularly ambitious and needing to
     roll a mini-framework with a different composition than Recess, starting
     with <classname>Object</classname> and other primitives like
-    <classname>Library</classname> defined in Recess Core will make your job
+    <classname>Library</classname> defined in Recess Core may make your job
     much more pleasant!</para>
 
     <para>A primary purpose of any framework is to remove boilerplate code
@@ -194,7 +194,7 @@ Library::addClassPath($_ENV['dir.bootstrap'] . 'apps/');
     <methodname>insert</methodname>, <methodname>update</methodname>,
     <methodname>delete</methodname>, are wrappable. Why is this useful? It
     allows user-defined functionality to inject behavior just before or just
-    after core framework method calls in a standard way. For example,
+    after core framework method calls in a simple, standard way. For example,
     validations on a Model may take place just before
     <methodname>insert</methodname> or <methodname>update</methodname>, using
     wrappable methods the validation system does not need to be closely
@@ -211,13 +211,13 @@ Library::addClassPath($_ENV['dir.bootstrap'] . 'apps/');
     meta-programming style. What does this mean? Rather than telling PHP how
     to do something, you tell Recess what you want with an annotation and it
     is then up to Recess and the annotation's class to expand your declarative
-    statement into PHP. Annotations can written on three PHP constructs:
+    statement into PHP. Annotations can be written on three PHP constructs:
     classes, methods, and properties. Because PHP does not have first-class
     support for annotations, Recess Annotations are placed inside of
     doccomments, comments that begin with <literal>/**</literal>, which are a
     first-class construct in PHP available through PHP's Reflection API.
-    Annotations can make use of attached and wrappable methods to inject units
-    of functionality. For further discussion on annotations see <xref
+    Annotations often make use of attached and wrappable methods to inject
+    units of functionality. For further discussion on annotations see <xref
     linkend="section.core.annotations" /></para>
 
     <para>Underlying <link
@@ -233,17 +233,17 @@ Library::addClassPath($_ENV['dir.bootstrap'] . 'apps/');
     Recess is running in production mode, this data-structure is computed once
     and cached. Sub-classes of <classname>Object</classname> can use the class
     descriptor as a store for computed data structures by overriding hooks in
-    the Object class. For example, <classname>Model</classname> uses this
-    cache to hold database information and the meta-data for relationships,
-    and <classname>Controller</classname> uses it to store routing
-    information. Annotations expand to 'shape' a class'
-    <classname>ClassDescriptor</classname>. The following section describes
-    the hooks available to sub-classes of <classname>Object</classname> for
-    shaping class descriptors.</para>
+    the <classname>Object</classname> class. For example,
+    <classname>Model</classname> uses this cache to hold database information
+    and the meta-data for relationships, and <classname>Controller</classname>
+    uses it to store routing information. Annotations expand to 'shape' a
+    class's <classname>ClassDescriptor</classname>. The following section
+    describes the hooks available to sub-classes of
+    <classname>Object</classname> for shaping class descriptors.</para>
 
     <section>
       <title xml:id="section.core.class-descriptors">Hooks in
-      <classname>Object</classname> while expanding Annotations and building
+      <classname>Object</classname> while expanding Annotations and shaping
       <classname>ClassDescriptor</classname></title>
 
       <para><emphasis>Initialize Class Descriptor</emphasis> - A class's
@@ -317,12 +317,13 @@ Library::addClassPath($_ENV['dir.bootstrap'] . 'apps/');
     <para>Sub-classes of <classname>Object</classname> allow you to attach
     methods to a class dynamically at run-time. Once a method has been
     attached all instances of that class in existance, or instantiated
-    thereafter, will have the method. Attached methods also show up with
-    reflection when using the <classname>RecessReflectionClass</classname>.
-    Example usages of attached methods are: the implementation of relationship
-    methods on models, and wrappable methods. To attach a method to a class
-    you must first define the target method on another class. The following
-    detailed example demonstrates attaching a method to a class.</para>
+    thereafter, will have the method available. Attached methods also show up
+    with reflection when using the
+    <classname>RecessReflectionClass</classname>. Example usages of attached
+    methods are: the implementation of relationship methods on models, and
+    wrappable methods. To attach a method to a class you must first define the
+    target method on another class. The following detailed example
+    demonstrates attaching a method to a class.</para>
 
     <para><example>
         <title>Attaching Methods to a sub-class of
@@ -880,8 +881,10 @@ $obj-&gt;wrappedFoo(); <co xml:id="iwrapper-co6" />
           <title>Combining Wrappers</title>
 
           <para><programlisting language="php">&lt;?php
+
 class RequiredWrapper implements IWrapper {
-    protected $properties = array();
+    protected $properties = array(); <co xml:id="???" />
+
     function __construct($property) {
         $this-&gt;properties[] = $property;
     }
@@ -896,25 +899,82 @@ class RequiredWrapper implements IWrapper {
 
         if(!empty($missing)) {
             print("The following properties are required: " . implode(", ", $missing);
-            return false;
+            return false; <co xml:id="???" />
         } else {
-            return true;
+            return null; <co xml:id="???" />
         }
     }
 
-    function after($model, $returns) { }
+    function after($model, $returns) { return $returns; }
 
     function combine(IWrapper $that) {
         if($wrapper instanceof RequiredWrapper) {
-            $this-&gt;properties = array_merge($this-&gt;properties, $that-&gt;properties);
-            return true;
+            $this-&gt;properties = array_merge($this-&gt;properties, $that-&gt;properties); <co
+                xml:id="???" />
+            return true; <co xml:id="???" />
         } else {
-            return false;
+            return false; <co xml:id="???" />
         }
     }
 }
+
+MyModel::wrapMethod('MyModel', 'insert', new RequiredWrapper('fieldA'));
+
+MyModel::wrapMethod('MyModel', 'insert', new RequiredWrapper('fieldB'));
+MyModel::wrapMethod('MyModel', 'update', new RequiredWrapper('fieldB'));
+
 ?&gt;</programlisting></para>
-        </example></para>
+        </example><calloutlist>
+          <callout arearefs="???">
+            <para>We'll store the list of required property names in <code
+            language="php">$this-&gt;properties</code>.</para>
+          </callout>
+
+          <callout arearefs="???">
+            <para>Here we short-circuit return <literal>false</literal>, so
+            that the wrapped method will not get called. In this naive wrapper
+            we're simply printing the error message in code.</para>
+          </callout>
+
+          <callout arearefs="???">
+            <para>Returning null is not necessary, it is the same as not
+            returning, shown to illustrate that if all required fields are
+            non-null the call will pass through to the wrapped call just
+            fine.</para>
+          </callout>
+
+          <callout arearefs="???">
+            <para>Here we combine the state of two
+            <classname>RequiredWrapper</classname>s after checking for type
+            sameness. </para>
+          </callout>
+
+          <callout arearefs="???">
+            <para>If we can combine we return <literal>true</literal>, and
+            <varname>$that</varname> is not added to the list of wrappers
+            because we have combined its state with
+            <varname>$this</varname>.</para>
+          </callout>
+
+          <callout arearefs="???">
+            <para>If we cannot combine we return
+            <literal>false</literal>.</para>
+          </callout>
+        </calloutlist>The result of this code is that there will be two
+      <classname>RequiredWrapper</classname> instances, one for
+      <methodname>insert</methodname> and the other for
+      <methodname>update</methodname>. The
+      <classname>RequiredWrapper</classname> for insert will contain two
+      properties in its <varname>$properties</varname> array. It is important
+      to note that new instances of wrappers should be wrapped for each
+      method, for example, if the same instance of a <code language="php">new
+      RequiredWrapper('fieldB')</code> had been wrapped around insert and
+      update then fieldA would be required for update as well because of
+      combine. (<emphasis>Note: This doesn't pass the sniff test and exposes
+      too much guts. Maybe we could change the implementation of
+      <methodname>addWrapper</methodname> in
+      <classname>WrappedMethod</classname> to clone the Wrapper before adding
+      it.</emphasis>)</para>
     </section>
 
     <section>
