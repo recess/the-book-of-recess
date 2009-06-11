@@ -160,7 +160,7 @@ Library::addClassPath($_ENV['dir.bootstrap'] . 'apps/');
     fact, if you are a developer feeling particularly ambitious and needing to
     roll a mini-framework with a different composition than Recess, starting
     with <classname>Object</classname> and other primitives like
-    <classname>Library</classname> defined in Recess Core will make your job
+    <classname>Library</classname> defined in Recess Core may make your job
     much more pleasant!</para>
 
     <para>A primary purpose of any framework is to remove boilerplate code
@@ -194,7 +194,7 @@ Library::addClassPath($_ENV['dir.bootstrap'] . 'apps/');
     <methodname>insert</methodname>, <methodname>update</methodname>,
     <methodname>delete</methodname>, are wrappable. Why is this useful? It
     allows user-defined functionality to inject behavior just before or just
-    after core framework method calls in a standard way. For example,
+    after core framework method calls in a simple, standard way. For example,
     validations on a Model may take place just before
     <methodname>insert</methodname> or <methodname>update</methodname>, using
     wrappable methods the validation system does not need to be closely
@@ -211,13 +211,13 @@ Library::addClassPath($_ENV['dir.bootstrap'] . 'apps/');
     meta-programming style. What does this mean? Rather than telling PHP how
     to do something, you tell Recess what you want with an annotation and it
     is then up to Recess and the annotation's class to expand your declarative
-    statement into PHP. Annotations can written on three PHP constructs:
+    statement into PHP. Annotations can be written on three PHP constructs:
     classes, methods, and properties. Because PHP does not have first-class
     support for annotations, Recess Annotations are placed inside of
     doccomments, comments that begin with <literal>/**</literal>, which are a
     first-class construct in PHP available through PHP's Reflection API.
-    Annotations can make use of attached and wrappable methods to inject units
-    of functionality. For further discussion on annotations see <xref
+    Annotations often make use of attached and wrappable methods to inject
+    units of functionality. For further discussion on annotations see <xref
     linkend="section.core.annotations" /></para>
 
     <para>Underlying <link
@@ -233,17 +233,17 @@ Library::addClassPath($_ENV['dir.bootstrap'] . 'apps/');
     Recess is running in production mode, this data-structure is computed once
     and cached. Sub-classes of <classname>Object</classname> can use the class
     descriptor as a store for computed data structures by overriding hooks in
-    the Object class. For example, <classname>Model</classname> uses this
-    cache to hold database information and the meta-data for relationships,
-    and <classname>Controller</classname> uses it to store routing
-    information. Annotations expand to 'shape' a class'
-    <classname>ClassDescriptor</classname>. The following section describes
-    the hooks available to sub-classes of <classname>Object</classname> for
-    shaping class descriptors.</para>
+    the <classname>Object</classname> class. For example,
+    <classname>Model</classname> uses this cache to hold database information
+    and the meta-data for relationships, and <classname>Controller</classname>
+    uses it to store routing information. Annotations expand to 'shape' a
+    class's <classname>ClassDescriptor</classname>. The following section
+    describes the hooks available to sub-classes of
+    <classname>Object</classname> for shaping class descriptors.</para>
 
     <section>
       <title xml:id="section.core.class-descriptors">Hooks in
-      <classname>Object</classname> while expanding Annotations and building
+      <classname>Object</classname> while expanding Annotations and shaping
       <classname>ClassDescriptor</classname></title>
 
       <para><emphasis>Initialize Class Descriptor</emphasis> - A class's
@@ -317,12 +317,13 @@ Library::addClassPath($_ENV['dir.bootstrap'] . 'apps/');
     <para>Sub-classes of <classname>Object</classname> allow you to attach
     methods to a class dynamically at run-time. Once a method has been
     attached all instances of that class in existance, or instantiated
-    thereafter, will have the method. Attached methods also show up with
-    reflection when using the <classname>RecessReflectionClass</classname>.
-    Example usages of attached methods are: the implementation of relationship
-    methods on models, and wrappable methods. To attach a method to a class
-    you must first define the target method on another class. The following
-    detailed example demonstrates attaching a method to a class.</para>
+    thereafter, will have the method available. Attached methods also show up
+    with reflection when using the
+    <classname>RecessReflectionClass</classname>. Example usages of attached
+    methods are: the implementation of relationship methods on models, and
+    wrappable methods. To attach a method to a class you must first define the
+    target method on another class. The following detailed example
+    demonstrates attaching a method to a class.</para>
 
     <para><example>
         <title>Attaching Methods to a sub-class of
@@ -432,9 +433,9 @@ $myInstance-&gt;attachedMethod('world'); <co xml:id="attached-method.co6" />
   </section>
 
   <section>
-    <title xml:id="section.core.wrappable-methods">
-    <literal>!Wrappable</literal> Methods and the
-    <classname>IWrapper</classname> Interface</title>
+    <title
+    xml:id="section.core.wrappable-methods"><literal>!Wrappable</literal>
+    Methods and the <classname>IWrapper</classname> Interface</title>
 
     <para>Wrappable methods are special methods on an Object class whose
     invocations be dynamically 'wrapped' with new behavior before and/or after
@@ -463,7 +464,7 @@ class MySubClass extends MyBaseClass {
         echo "Before!\n"; 
         $result = parent::foo(); <co xml:id="inheritance.wrapping.co3"
               xml:lang="" />
-        echo "After!\n"; <co xml:id="inheritance.wrapping.co3" xml:lang="" />
+        echo "After!\n"; <co xml:id="inheritance.wrapping.co4" xml:lang="" />
         return $result;
     }
 }
@@ -484,17 +485,17 @@ $obj-&gt;echoFoo();
           inheritance.</para>
         </callout>
 
-        <callout arearefs="???">
+        <callout arearefs="inheritance.wrapping.co2">
           <para><methodname>foo</methodname> is overridden by
           <classname>MySubClass</classname> and first echos a message.</para>
         </callout>
 
-        <callout arearefs="???">
+        <callout arearefs="inheritance.wrapping.co3">
           <para>Now, we call the 'wrapped', or in this case overridden, parent
           class' <methodname>foo</methodname> method.</para>
         </callout>
 
-        <callout arearefs="???">
+        <callout arearefs="inheritance.wrapping.co4">
           <para>Finally, let's print an after message once the call to
           <classname>MyBaseClass</classname>' foo has returned.</para>
         </callout>
@@ -587,7 +588,7 @@ $obj-&gt;foo(); <co xml:id="wrappable-method.co3" />
         <callout arch="" arearefs="wrappable-method.co3">
           <para>We can now invoke a method <methodname>foo()</methodname> on
           instances of <classname>MyBaseClass</classname>. Underneath the
-          covers wrappable methods are introduced using attached methods, for
+          covers wrappable methods are surfaced using attached methods, for
           more info on attached methods see <xref
           linkend="section.core.attached-methods" />.</para>
         </callout>
@@ -599,7 +600,7 @@ $obj-&gt;foo(); <co xml:id="wrappable-method.co3" />
     <para><example>
         <title>Implementing IWrapper</title>
 
-        <para><programlisting language="php">... replace starting at previous example's definition of PrintWrapper ... 
+        <para><programlisting language="php">// ... replace starting at previous example's definition of PrintWrapper ... 
 
 class PrintWrapper implements IWrapper {
     function before($object, &amp;$arguments) { <co xml:id="iwrapper-co1" />
@@ -688,18 +689,300 @@ $obj-&gt;wrappedFoo(); <co xml:id="iwrapper-co6" />
     can wrap a wrappable method. So we could create a logging wrapper that
     also wraps <methodname>foo</methodname> and easily flip either wrapper on
     or off, dynamically at run-time, without having to reorganize our class
-    hierarchy. Lets point out exactly how wrappable methods address the
-    downsides of inheritance:</para>
+    hierarchy. For more detail see <xref
+    linkend="section.core.wrappable-methods.mechanics" />. Lets point out
+    exactly how wrappable methods address the downsides of inheritance:</para>
 
     <para><itemizedlist>
         <listitem>
-          <para>Inflexibility -</para>
+          <para>Wrappable methods avoid the <emphasis>inflexibility</emphasis>
+          of inheritance-based overriding because methods can be wrapped
+          dynamically. Wrapping methods with new functionality does not affect
+          the type system or class hierarchy.</para>
         </listitem>
 
         <listitem>
-          <para>Code Duplication -</para>
+          <para>Wrappable methods encapsulate a behavior around a method call.
+          This presents a new way for PHP programs to package functionality to
+          fight <emphasis>code duplication</emphasis>. To use Aspect-Oriented
+          Programming terminology you could think of wrappers as a means for
+          separating crosscutting concerns. Cross-cutting concerns are tasks
+          like logging/printing debug messages as shown in the example above,
+          authorization and access control, etc.</para>
         </listitem>
       </itemizedlist></para>
+
+    <para>Given these two specific characteristics wrappable methods and
+    wrappers provide a natural extensibility model. Plugin-developers can
+    implement <classname>IWrapper</classname>s that application-developers can
+    easily incorporate in their projects because there is no need to modify a
+    class heirarchy and the plugin's wrapper behavior is encapsulated in a
+    simple class. For application-developers, instantiating wrappers and
+    applying them with the
+    <classname>Object</classname>::<methodname>wrapMethod</methodname> API can
+    be awkward and cumbersome. This is where Recess Core's annotations come to
+    the rescue, annotations provide the perfect vehicle for making declarative
+    statements about a class or method which then employ wrappers and attached
+    methods to do the leg work under the covers. For more information on
+    annotations, see <xref linkend="section.core.annotations" /></para>
+
+    <section>
+      <title xml:base="" xml:id="section.core.wrappable-methods.mechanics">The
+      Mechanics of Wrapped Methods and Wrappers</title>
+
+      <para>Where in the code base are wrapped methods implemented? What is
+      the exact logic for processing methods wrapped with multiple wrappers?
+      The answers to these questions are the focus of this section.</para>
+
+      <para>The implementation of wrapped methods can be thought of as a
+      combination of the Observer and Strategy design patterns with specific
+      semantics. Wrappers are observers of wrapped methods who are notified
+      before and after the wrapped method is called. The
+      <methodname>before</methodname> and <methodname>after</methodname>
+      aren't vanilla notifications, though, and can return values that affect
+      the logic of the call similar to a strategy. The logic of wrapped method
+      invocation is implemented in the
+      <classname>recess.lang.WrappedMethod</classname> class. The
+      <methodname>addWrappedMethod</methodname> in
+      <classname>recess.lang.ClassDescriptor</classname> brings wrapped
+      methods onto a class' descriptor, and, finally the
+      <classname>recess.lang.WrappableAnnotation</classname> abstracts away
+      the pattern of making a plain-old class method a wrappable
+      method.</para>
+
+      <para>When a wrapped method is invoked, the following process
+      occurs:</para>
+
+      <para><orderedlist>
+          <listitem>
+            <para>Statement <emphasis>S</emphasis> invokes wrapped method
+            <emphasis>M</emphasis> on object <emphasis>O</emphasis> with
+            arguments <emphasis>A*</emphasis>.</para>
+          </listitem>
+
+          <listitem>
+            <para>Each wrapper's <methodname>before</methodname> method is
+            invoked in the reverse order that the wrappers were added<footnote>
+                <para><classname>IWrapper</classname> implementations must not
+                depend on the order in which they are applied to a wrappable
+                method.</para>
+              </footnote>(LIFO). <methodname>before</methodname> is passed, by
+            reference, <emphasis>O</emphasis> and an array of
+            <emphasis>A*</emphasis>. The wrapper, thus, has an opportunity to
+            get or set public state from <emphasis>O</emphasis> or any
+            argument in <emphasis>A*</emphasis>. If a wrapper's
+            <methodname>before</methodname> does not return a value or returns
+            the value <literal>null</literal> then the next wrapper's before
+            is called until all wrapper's <methodname>before</methodname>
+            methods have been called. If a wrapper's
+            <methodname>before</methodname> returns a non-null value this
+            value does not pass go and does not collect two hundred dollars,
+            it short-circuits the wrapper call-chain and is immediately
+            returned to statement <emphasis>S</emphasis>.</para>
+          </listitem>
+
+          <listitem>
+            <para>The call to the wrapped method <emphasis>M</emphasis> is
+            made using the (potentially transformed) arguments
+            <emphasis>A*</emphasis>. <emphasis>M</emphasis> returns value
+            <emphasis>R</emphasis>.</para>
+          </listitem>
+
+          <listitem>
+            <para>Each wrapper's <methodname>after</methodname> method is
+            invoked in the order that the wrappers were added (FIFO).
+            <methodname>after</methodname> is passed arguments
+            <emphasis>O</emphasis> and <emphasis>R</emphasis>
+            (<emphasis>M</emphasis>'s return value). If the call to a
+            wrapper's <methodname>after</methodname> returns a non-null value
+            then this return value, <emphasis>R'</emphasis>, will override
+            <emphasis>R</emphasis> in the remaining wrapper's calls to
+            <methodname>after</methodname>, else <emphasis>R'</emphasis> is
+            set to <emphasis>R</emphasis>.</para>
+          </listitem>
+
+          <listitem>
+            <para>The value <emphasis>R'</emphasis> is returned to
+            <emphasis>S.</emphasis></para>
+          </listitem>
+        </orderedlist></para>
+
+      <para><warning>
+          <para>While nothing will stop you as an
+          <classname>IWrapper</classname> author from writing the following at
+          design-time, it should be noted that these practices will most
+          likely cause errors and headaches at run-time and are considered
+          <emphasis>really bad practice</emphasis>:</para>
+
+          <para><itemizedlist>
+              <listitem>
+                <para>In <methodname>before</methodname>: changing the types
+                of arguments in <emphasis>A*</emphasis>, or changing the
+                number of arguments in <emphasis>A*</emphasis>.
+                <emphasis>A*</emphasis> must remain such that using its
+                elements to call method <emphasis>M</emphasis> will result in
+                a valid method call with the arguments <emphasis>M</emphasis>
+                expects.</para>
+              </listitem>
+
+              <listitem>
+                <para>In <methodname>before</methodname>: returning a value of
+                any type other than <emphasis>M</emphasis> could be expected
+                to return.</para>
+              </listitem>
+
+              <listitem>
+                <para>In <methodname>after</methodname>: returning a value
+                <emphasis>R'</emphasis> of any type other than
+                <emphasis>M</emphasis> could be expected to return.</para>
+              </listitem>
+            </itemizedlist></para>
+        </warning></para>
+    </section>
+
+    <section>
+      <title>Combining Method Wrappers with <classname>IWrapper</classname>'s
+      <methodname>combine</methodname> method</title>
+
+      <para>At runtime each wrapper is an instantiated object. In production
+      mode these objects are deserialized on every request. Reducing the
+      number-of wrappers is a boost to performance in time (extra method calls
+      are expensive) and space so Recess gives <classname>IWrapper</classname>
+      authors a simple way to combine similar wrappers. Imagine you've just
+      created a <literal>!Required</literal> annotation that application
+      developers can place on properties of a <classname>Model</classname> to
+      denote they are required for <methodname>insert</methodname> and
+      <methodname>update</methodname>. Beyind the scenes you've written a
+      <classname>RequiredWrapper </classname>that takes the name of a property
+      and in the <methodname>before</methodname> method checks to make sure
+      the property's value is non-null. Each annotation would thus expand to
+      wrap <methodname>insert</methodname> and <methodname>update</methodname>
+      with a new instance of <classname>RequiredWrapper</classname> for every
+      property on the model. That could mean a lot of
+      <classname>IWrapper</classname> objects to call
+      <methodname>before</methodname> and <methodname>after</methodname> on to
+      check requiredness! (It would also mean you couldn't check more than one
+      field for requiredness because of short-circuit returns!)</para>
+
+      <para>When wrappers are applied to a
+      <classname>WrappedMethod</classname> using
+      <methodname>addWrapper</methodname> the
+      <classname>WrappedMethod</classname> first iterates through each of the
+      existing wrappers and calls their <methodname>combine</methodname>
+      method, passing in the new wrapper. If the existing wrapper determines
+      it can combine its state with the new wrapper's state it will do so and
+      return true which indicates to the WrappedMethod <emphasis>"do not add
+      this new wrapper to your list, I've taken on its duties"</emphasis>. If
+      all existing wrapper's <methodname>combine</methodname> method returns
+      false the new wrapper will be added to the list of registered wrappers.
+      Let's take a look at an example:</para>
+
+      <para><example>
+          <title>Combining Wrappers</title>
+
+          <para><programlisting language="php">&lt;?php
+
+class RequiredWrapper implements IWrapper {
+    protected $properties = array(); <co xml:id="???" />
+
+    function __construct($property) {
+        $this-&gt;properties[] = $property;
+    }
+
+    function before($model, $args) {
+        $missing = array();
+        foreach($this-&gt;properties as $property) {
+            if($model-&gt;$property === null) {
+                $missing[] = $property;
+            }
+        }
+
+        if(!empty($missing)) {
+            print("The following properties are required: " . implode(", ", $missing);
+            return false; <co xml:id="???" />
+        } else {
+            return null; <co xml:id="???" />
+        }
+    }
+
+    function after($model, $returns) { return $returns; }
+
+    function combine(IWrapper $that) {
+        if($wrapper instanceof RequiredWrapper) {
+            $this-&gt;properties = array_merge($this-&gt;properties, $that-&gt;properties); <co
+                xml:id="???" />
+            return true; <co xml:id="???" />
+        } else {
+            return false; <co xml:id="???" />
+        }
+    }
+}
+
+MyModel::wrapMethod('MyModel', 'insert', new RequiredWrapper('fieldA'));
+
+MyModel::wrapMethod('MyModel', 'insert', new RequiredWrapper('fieldB'));
+MyModel::wrapMethod('MyModel', 'update', new RequiredWrapper('fieldB'));
+
+?&gt;</programlisting></para>
+        </example><calloutlist>
+          <callout arearefs="???">
+            <para>We'll store the list of required property names in <code
+            language="php">$this-&gt;properties</code>.</para>
+          </callout>
+
+          <callout arearefs="???">
+            <para>Here we short-circuit return <literal>false</literal>, so
+            that the wrapped method will not get called. In this naive wrapper
+            we're simply printing the error message in code.</para>
+          </callout>
+
+          <callout arearefs="???">
+            <para>Returning null is not necessary, it is the same as not
+            returning, shown to illustrate that if all required fields are
+            non-null the call will pass through to the wrapped call just
+            fine.</para>
+          </callout>
+
+          <callout arearefs="???">
+            <para>Here we combine the state of two
+            <classname>RequiredWrapper</classname>s after checking for type
+            sameness. </para>
+          </callout>
+
+          <callout arearefs="???">
+            <para>If we can combine we return <literal>true</literal>, and
+            <varname>$that</varname> is not added to the list of wrappers
+            because we have combined its state with
+            <varname>$this</varname>.</para>
+          </callout>
+
+          <callout arearefs="???">
+            <para>If we cannot combine we return
+            <literal>false</literal>.</para>
+          </callout>
+        </calloutlist>The result of this code is that there will be two
+      <classname>RequiredWrapper</classname> instances, one for
+      <methodname>insert</methodname> and the other for
+      <methodname>update</methodname>. The
+      <classname>RequiredWrapper</classname> for insert will contain two
+      properties in its <varname>$properties</varname> array. It is important
+      to note that new instances of wrappers should be wrapped for each
+      method, for example, if the same instance of a <code language="php">new
+      RequiredWrapper('fieldB')</code> had been wrapped around insert and
+      update then fieldA would be required for update as well because of
+      combine. (<emphasis>Note: This doesn't pass the sniff test and exposes
+      too much guts. Maybe we could change the implementation of
+      <methodname>addWrapper</methodname> in
+      <classname>WrappedMethod</classname> to clone the Wrapper before adding
+      it.</emphasis>)</para>
+    </section>
+
+    <section>
+      <title>Using the <literal>!Before</literal> and
+      <literal>!After</literal> Annotations</title>
+
+      <para></para>
+    </section>
   </section>
 
   <section>
