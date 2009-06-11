@@ -792,7 +792,7 @@ class CookieProtectedAnnotation extends Annotation {
     protected function validate($class) {
         $this-&gt;minimumParameterCount(0);
         $this-&gt;maximumParameterCount(1);
-        $this-&gt;validOnInstancesOf($class, Controller::CLASSNAME);
+        $this-&gt;validOnSubclassesOf($class, Controller::CLASSNAME);
     }
 
     protected function expand($class, $reflection, $descriptor) {}
@@ -820,7 +820,7 @@ class CookieProtectedAnnotation extends Annotation {
       <methodname>acceptedValuesForKey</methodname>,
       <methodname>acceptsNoKeylessValues</methodname>,
       <methodname>acceptsNoKeyedValues</methodname>,
-      <methodname>validOnInstancesOf</methodname>,
+      <methodname>validOnSubclassesOf</methodname>,
       <methodname>minimumParameterCount</methodname>,
       <methodname>maximumParameterCount</methodname>,
       <methodname>exactParameterCount</methodname>. To understand the meaning
