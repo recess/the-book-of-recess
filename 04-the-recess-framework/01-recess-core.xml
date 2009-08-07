@@ -107,7 +107,7 @@ $bClass = new BClass();</programlisting></para>
 date_default_timezone_set('America/New_York');
 
 $_ENV['dir.bootstrap'] = str_replace('\\','/',realpath(dirname(__FILE__))) . '/';
-$_ENV['url.base'] = str_replace(filename(__FILE__), '', $_SERVER['PHP_SELF']);
+$_ENV['url.base'] = str_replace(basename(__FILE__), '', $_SERVER['PHP_SELF']);
 
 $_ENV['dir.recess'] = $_ENV['dir.bootstrap'] . 'recess/';
 $_ENV['dir.temp'] = $_ENV['dir.bootstrap'] . 'data/temp/'; // This directory must be writeable by PHP
@@ -946,7 +946,7 @@ MyModel::wrapMethod('MyModel', 'update', new RequiredWrapper('fieldB'));
           <callout arearefs="combine-co4">
             <para>Here we combine the state of two
             <classname>RequiredWrapper</classname>s after checking for type
-            sameness. </para>
+            sameness.</para>
           </callout>
 
           <callout arearefs="combine-co5">
@@ -1075,7 +1075,7 @@ class CookieProtectedAnnotation extends Annotation {
     protected function validate($class) {
         $this-&gt;minimumParameterCount(0);
         $this-&gt;maximumParameterCount(1);
-        $this-&gt;validOnInstancesOf($class, Controller::CLASSNAME);
+        $this-&gt;validOnSubclassesOf($class, Controller::CLASSNAME);
     }
 
     protected function expand($class, $reflection, $descriptor) {}
@@ -1103,7 +1103,7 @@ class CookieProtectedAnnotation extends Annotation {
       <methodname>acceptedValuesForKey</methodname>,
       <methodname>acceptsNoKeylessValues</methodname>,
       <methodname>acceptsNoKeyedValues</methodname>,
-      <methodname>validOnInstancesOf</methodname>,
+      <methodname>validOnSubclassesOf</methodname>,
       <methodname>minimumParameterCount</methodname>,
       <methodname>maximumParameterCount</methodname>,
       <methodname>exactParameterCount</methodname>. To understand the meaning

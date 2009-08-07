@@ -1,6 +1,866 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter xmlns="http://docbook.org/ns/docbook" version="5.0"
-         xml:id="recess.04.05">
-	<title>Views and View Templates</title>
-	<para></para>
+<chapter version="5.0" xml:id="recess.04.05"
+         xmlns="http://docbook.org/ns/docbook"
+         xmlns:ns52="http://www.w3.org/2000/svg"
+         xmlns:ns5="http://www.w3.org/1999/xlink"
+         xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns3="http://www.w3.org/1999/xhtml"
+         xmlns:ns="http://docbook.org/ns/docbook">
+  <title>Views and Templates</title>
+
+  <para>Your controller has done all the heavy lifting and taken care of the
+  "business logic", now it's time to get back to your client with a meaningful
+  response. Where controllers are all about serving the client by doing and
+  fetching, views are all about responding by presenting and rendering.</para>
+
+  <para>How you actually respond likely depends on: 1) what the HTTP client
+  asks for "I want /person/1 in JSON", "Ok, the controller gave me the data
+  for Person 1, here it is in JSON", and 2) the best way for you to get the
+  job done: maybe it's using Smarty templates, maybe it's an automatic
+  response, or maybe it's plain old PHP.</para>
+
+  <para>This brings us to the design goals of Recess' View system, which have
+  been revamped in 0.20:</para>
+
+  <para><itemizedlist>
+      <listitem>
+        <para>Flexible - The view system must simplify handling different
+        response types: HTML, JSON, XML, PDF, etc.</para>
+      </listitem>
+
+      <listitem>
+        <para>Extensible - Users can create their own Views to accomodate
+        preferences with template engine(s) or automating common
+        responses.</para>
+      </listitem>
+
+      <listitem>
+        <para>Predictable - The logic for selecting a view should be
+        straightforward. Assertive templates, covered later in this chapter,
+        are also encouraged for improved predictability when authoring
+        templates.</para>
+      </listitem>
+    </itemizedlist></para>
+
+  <section>
+    <title>A Leading Example</title>
+
+    <para>Before diving into specifics let's take a leading example of
+    creating the view components for a hypothetical listing of blog posts.
+    Suppose we have a Post model that has properties: title, author, and body.
+    Our controller code will look like this:</para>
+
+    <para><example>
+        <title>Controller Code to send a List of All Posts to the View
+        Layer</title>
+
+        <para><programlisting language="php">/**
+ * !RespondsWith Layouts
+ * !Prefix post/
+ */
+class PostsController {
+  /** !Route GET, list */
+  function index() {
+    $this-&gt;posts = Make::a('Post')-&gt;all();
+  }
+}</programlisting></para>
+      </example>We'll get into the details of the relevant annotations later,
+    for now just take our word that the view class rendering the response will
+    be <classname>LayoutsView</classname>, and it will be looking for the view
+    template <filename>post/index.html.php</filename> found in the
+    <filename>apps/[appname]/views/</filename> sub-directory. The variable
+    <varname>$postSet</varname> will be available to this template which
+    represents a set of <classname>Post</classname> models.</para>
+
+    <para>Our first-pass, naive template implementation of
+    <filename>post/index.html.php</filename> may look like this:</para>
+
+    <para><example>
+        <title>A Naive View Template Implementation of
+        post/index.html.php</title>
+
+        <para><programlisting language="php">&lt;html&gt;
+  &lt;head&gt;&lt;title&gt;A List of Posts&lt;/title&gt;&lt;/head&gt;
+  &lt;body&gt;
+    &lt;ul&gt;
+    &lt;?php foreach($posts as $post): ?&gt;
+      &lt;li class="post"&gt;
+        &lt;span class="title"&gt;&lt;?php echo $post-&gt;title ?&gt;&lt;/span&gt; by 
+        &lt;span class="author"&gt;&lt;?php echo $post-&gt;author ?&gt;&lt;/span&gt;
+      &lt;/li&gt;
+    &lt;?php endforeach ?&gt;
+    &lt;/ul&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</programlisting></para>
+      </example>This works, but as our application grows in complexity we will
+    want to remove redundant HTML to layouts shared by many views. Let's try
+    creating a layout that this simple view can extend to remove common
+    HTML.</para>
+
+    <para><example>
+        <title>A Simple Layout: master.layout.php</title>
+
+        <para><programlisting language="php">&lt;?php
+Layout::input($title, 'string');
+Layout::input($body, 'string');
+?&gt;
+&lt;html&gt;
+  &lt;head&gt;&lt;title&gt;&lt;?php echo $title ?&gt;&lt;/title&gt;&lt;/head&gt;
+  &lt;body&gt;
+    &lt;?php echo $body ?&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</programlisting></para>
+      </example></para>
+
+    <para><example>
+        <title>Making post/index.html.php extend master.layout.php</title>
+
+        <para><programlisting language="php">&lt;?php
+Layout::extend('master');
+
+$title = 'A List of Posts';
+
+$body = '&lt;ul&gt;';
+foreach($posts as $post) {
+  $body .= '&lt;li class="post"&gt;' .
+           '&lt;span class="title"&gt;' . $post-&gt;title . '&lt;/span&gt; by ' .
+           '&lt;span class="author"&gt;' . $post-&gt;author . '&lt;/span&gt;' .
+           '&lt;/li&gt;';
+}
+$body .= '&lt;/ul&gt;';
+?&gt;</programlisting></para>
+      </example>As you can see, we've extracted the redundant HTML to a master
+    layout. You'll notice that the master layout specifies its inputs. The
+    child/parent templates do not share scope, the parent must define which
+    inputs it requires and the type the variable should be. This improves
+    <emphasis>predictability</emphasis> because you know exactly what
+    variables a parent layout is expecting. If your child template fails to
+    provide a variable required by the parent you will get a simple error
+    message notifying you of the problem instead of an obscure 'variable not
+    defined' message from somewhere deep in the parent template.</para>
+
+    <para>Unfortunately, our listing template has regressed. Storing the
+    output of the list of posts in a string is painful. This is where
+    <classname>Buffer</classname>'ing and <classname>Block</classname> save
+    the day! Buffer is a class that uses PHP's output buffering to fill
+    Blocks. The buffer fills a block. Let's take a look:</para>
+
+    <para><example>
+        <title>Using Buffer::to($bodyBlock) in post/index.html.php</title>
+
+        <para><programlisting language="php">&lt;?php
+Layout::extend('master');
+$title = 'A List of Posts';
+?&gt;
+&lt;?php Buffer::to($body); ?&gt;
+  &lt;ul&gt;
+    &lt;?php foreach($posts as $post): ?&gt;
+      &lt;li class="post"&gt;
+        &lt;span class="title"&gt;&lt;?php echo $post-&gt;title ?&gt;&lt;/span&gt; by 
+        &lt;span class="author"&gt;&lt;?php echo $post-&gt;author ?&gt;&lt;/span&gt;
+      &lt;/li&gt;
+    &lt;?php endforeach ?&gt;
+  &lt;/ul&gt;
+&lt;?php Buffer::end(); ?&gt;</programlisting></para>
+      </example>Now we don't have to worry about string concatenation, we let
+    <classname>Buffer</classname> fill our $body <classname>Block</classname>.
+    If we were to run this code we would get a type check error in the master
+    layout: $body is expected to be a string, but now it is an instance of
+    <classname>HtmlBlock</classname> which is a sub-class of
+    <classname>Block</classname>. Why not just have
+    <classname>Buffer</classname> fill strings? Shortly we'll see how
+    <classname>Block</classname>'s type-hierarchy enables really powerful
+    features. The immediate benefit, though, is that it allows layouts to
+    specify they are expecting a block of HTML, not just a string. Let's
+    update our master layout.</para>
+
+    <para><example>
+        <title>Updating the master.layout.php to assert $body is a
+        Block</title>
+
+        <para><programlisting language="php">&lt;?php
+Layout::input($title, 'string');
+Layout::input($body, 'Block');
+?&gt;
+&lt;html&gt;
+  &lt;head&gt;&lt;title&gt;&lt;?php echo $title ?&gt;&lt;/title&gt;&lt;/head&gt;
+  &lt;body&gt;
+    &lt;?php echo $body ?&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</programlisting></para>
+      </example>Easy enough! Notice all we needed to change was the expected
+    type on the input. We can echo a <classname>Block</classname> instance
+    just like we can a string. Imagine we had some other places in our
+    application where we'd really like to print out the list-item format of a
+    <classname>Post</classname>. Enter: Parts to save the day! Parts are kind
+    of like partial templates you may have used in other frameworks. Let's
+    take a look at how we would define a part for post.</para>
+
+    <para><example>
+        <title>Defining post/li.part.php</title>
+
+        <para><programlisting language="php">&lt;?php
+Part::input($aPost, 'Post');
+?&gt;
+&lt;li class="post"&gt;
+  &lt;span class="title"&gt;&lt;?php echo $aPost-&gt;title ?&gt;&lt;/span&gt; by 
+  &lt;span class="author"&gt;&lt;?php echo $aPost-&gt;author ?&gt;&lt;/span&gt;
+&lt;/li&gt;</programlisting></para>
+      </example>Notice the similarity with a layout: parts and layouts define
+    their inputs. The term we coined for this style of a template is an
+    <emphasis>Assertive Template</emphasis>. By being assertive about the
+    inputs a template expects we can make working with these templates much
+    more pleasant. Let's take a look at how we would use this part in
+    <filename>post/index.html.php</filename>.</para>
+
+    <para><example>
+        <title>Using a Part in post/index.html.php</title>
+
+        <para><programlisting language="php">&lt;?php
+Layout::extend('master');
+$title = 'A List of Posts';
+?&gt;
+&lt;ul&gt;&lt;?php
+    foreach($posts as $post) {
+      Part::draw('post/li', $post);
+    }
+?&gt;&lt;/ul&gt;</programlisting></para>
+      </example>We can 'draw' a Part by passing the path to the part in the
+    views directory, minus '.part.php', and the rest of the inputs in the
+    order specified by the part. You pass a part inputs just like you call a
+    function with arguments. Notice that the name of the variable passed to
+    draw and the name of the input do not have to match, again, like
+    functions. This is contrasted by most PHP partial libraries that would
+    require calling the template with an array like array('aPost' =&gt;
+    $post).</para>
+
+    <para>You'll also notice we're no longer buffering $body. But the code
+    still works! What's going on? By default, if your child template does not
+    specify a $body block, any output will automatically create a
+    <classname>Block</classname> named <varname>$body</varname> that will be
+    passed to its parent layout.</para>
+
+    <para>Let's say we wanted to make it possible to append another class to
+    the <literal>post/li</literal> part. We can create an additional input
+    that is optional by passing a third argument to Part::input which is the
+    default value of an input.</para>
+
+    <para><example>
+        <title>Specifying a Default Input Value in post/li.part.php</title>
+
+        <para><programlisting language="php">&lt;?php
+Part::input($aPost, 'Post');
+Part::input($class, 'string', '');
+?&gt;
+&lt;li class="post&lt;?php if($class != '') echo " $class" ?&gt;"&gt;
+  &lt;span class="title"&gt;&lt;?php echo $aPost-&gt;title ?&gt;&lt;/span&gt; by 
+  &lt;span class="author"&gt;&lt;?php echo $aPost-&gt;author ?&gt;&lt;/span&gt;
+&lt;/li&gt;</programlisting></para>
+      </example>Now, by default, the only class will be 'post', but others
+    could be appended by passing an additional input to the part. Let's go
+    back to our post/index.html.php template and make the additional class
+    name of 'odd' be appended to every other item in our list. This way we can
+    style every other post differently using CSS.</para>
+
+    <para><example>
+        <title>Give odd posts an additional class of 'odd' in
+        post/index.html.php</title>
+
+        <para><programlisting language="php">&lt;?php
+Layout::extend('master');
+$title = 'A List of Posts';
+?&gt;
+&lt;ul&gt;&lt;?php
+    $i = -1;
+    foreach($posts as $post) {
+      if((++$i % 2) == 0) {
+        Part::draw('post/li', $post);
+      } else {
+        Part::draw('post/li', $post, 'odd');
+      }
+    }
+?&gt;&lt;/ul&gt;</programlisting></para>
+      </example>You can see by passing an additional input to post/li we are
+    now appending the 'odd' class to odd posts. Suppose that throughout our
+    project we use this even/odd classname technique in a number of places.
+    Could we do any better and eliminate this redundancy? Yes, we can! We'll
+    simply create a part for it.</para>
+
+    <para>Now, take a deep breath and hold on. Here comes the sexy stuff that
+    makes our parts different from everyone else's partials. Earlier we
+    alluded to there being some 'power' in passing around instances of
+    <classname>Block</classname> instead of strings. You saw an example of how
+    <classname>Buffer</classname> filled an <classname>HtmlBlock</classname>.
+    There is a special Block for Parts, too, called
+    <classname>PartBlock</classname>. Before we summon a
+    <classname>PartBlock</classname>, though, let's first create the
+    higher-order part that abstracts toggling between two blocks.</para>
+
+    <para><example>
+        <title>Creating a Higher Order Part with each-toggle.part.php</title>
+
+        <para><programlisting>&lt;?php
+Part::input($items, 'array');
+Part::input($even, 'Block');
+Part::input($odd, 'Block');
+$i = -1;
+foreach($items as $item) {
+  if((++$i % 2) == 0) {
+    $even-&gt;draw($item);
+  } else {
+    $odd-&gt;draw($item);
+  }
+}
+?&gt;</programlisting></para>
+      </example>There are two interesting things going on here. First, notice
+    that we're passing in two <classname>Block</classname> instances named
+    <varname>$even</varname> and <varname>$odd</varname>. Second, notice that
+    we're using the <methodname>draw</methodname> method of
+    <classname>Block</classname>. Every <classname>Block</classname> has two
+    methods: <methodname>__tostring</methodname> and
+    <methodname>draw</methodname>. For an <classname>HtmlBlock</classname>
+    created using <classname>Buffer</classname>, draw doesn't take any
+    arguments (but won't complain if you give them). For a
+    <classname>PartBlock</classname>, though, passing arguments to
+    <methodname>draw</methodname> will apply those arguments where you left
+    off in creating the <classname>PartBlock</classname>. Well, then, how do
+    you create a <classname>PartBlock</classname>?</para>
+
+    <para><example>
+        <title>Creating PartBlocks for use in Higher-Order Parts</title>
+
+        <para><programlisting language="php">&lt;?php
+// Assume $post is already defined as an instance of Post
+$partBlock = Part::block('post/li');
+$partBlock-&gt;draw($post);
+$partBlock-&gt;draw($post, 'odd');
+// Is the same as:
+$partBlock2 = Part::block('post/li', $post);
+$partBlock2-&gt;draw();
+$partBlock2-&gt;draw('odd');
+?&gt;</programlisting></para>
+      </example></para>
+
+    <para>So, by using the <methodname>block</methodname> method instead of
+    <methodname>draw</methodname>, the method returns a
+    <methodname>PartBlock</methodname> with the parameters you've passed
+    stored. You can think of this like <emphasis>currying</emphasis> in
+    functional languages like Scala / OCaml. For the astute reader you'll
+    notice we have a problem on our hands, though. In order to use our
+    'each-toggle' part $post must be the final argument passed to draw. We can
+    solve this in one of two ways, first we could do the obvious and re-order
+    the inputs so that our 'post/li' is passed a class string first and a Post
+    second. That makes things ugly, though, because we really want class to be
+    an optional parameter. Recess has a mechanism for assigning optional
+    arguments to a PartBlock after it has been created. Let's take another
+    look.</para>
+
+    <para><example>
+        <title>Specifying Out-of-order Inputs in PartBlocks for use in
+        Higher-Order Parts</title>
+
+        <para><programlisting language="php">&lt;?php
+// Assume $post is already defined as an instance of Post
+$partBlock = Part::block('post/li');
+$partBlock-&gt;draw($post);
+$partBlock-&gt;class('odd')-&gt;draw($post);
+// Is the same as:
+$partBlock2 = Part::block('post/li', $post);
+$partBlock2-&gt;draw();
+$partBlock2-&gt;class('odd')-&gt;draw();
+?&gt;</programlisting></para>
+      </example></para>
+
+    <para>This style of assignment is inspired by the jQuery library and uses
+    method chaining to make it easier to specify multiple optional arguments.
+    Notice that the 'class' method corresponds to the $class input of the
+    'post/li' part. Now we're finally equipt to use our higher-order
+    'each-toggle' template! Let's take a look:</para>
+
+    <para><example>
+        <title>Refactoring post/index.html.php using PartBlocks and a
+        Higher-order Part</title>
+
+        <para><programlisting language="php">&lt;?php
+Layout::extend('master');
+$title = 'A List of Posts';
+?&gt;
+&lt;ul&gt;
+&lt;?php
+  $li = Part::block('post/li');
+  Part::draw('each-toggle', $posts, $li, $li-&gt;class('odd'));
+?&gt;
+&lt;/ul&gt;</programlisting></para>
+      </example>Voila! Simple and beautiful. If we wanted to be really
+    pedantic we could even make a part for a list of posts. In this case it's
+    a little excessive, but let's do it just to demonstrate how parts can be
+    composed. Let's start with the code we'd like to end up with in
+    post/index.html.php template and design the part from it.</para>
+
+    <para><example>
+        <title>Our final version of post/index.html.php</title>
+
+        <para><programlisting language="php">&lt;?php
+Layout::extend('master');
+$title = 'A List of Posts';
+$body = Part::block('post/ul', $posts);
+?&gt;</programlisting></para>
+      </example><example>
+        <title>A Part that uses Parts - post/ul.part.php</title>
+
+        <para><programlisting language="php">&lt;?php Part::input($posts, 'array'); ?&gt;
+&lt;ul&gt;
+&lt;?php
+  $li = Part::block('post/li');
+  Part::draw('each-toggle', $posts, $li, $li-&gt;class('odd'));
+?&gt;
+&lt;/ul&gt;</programlisting></para>
+      </example>This wraps up our leading tutorial of the new view system in
+    Recess 0.2! Blocks, Parts, and Layouts are the keywords.
+    <emphasis>Blocks</emphasis> are chunks of HTML that haven't been rendered
+    yet and can be static with <classname>HtmlBlock</classname> or wrap around
+    parts with <classname>PartBlock</classname>. Layouts are advanced includes
+    that safely transfer variables from a child template to a parent layout.
+    This is possible because parent layouts specify their inputs. Parts, kind
+    of like partials, also specify their inputs. Parts and Layouts are
+    considered to be <emphasis>Assertive Templates</emphasis> for this reason.
+    Parts can become blocks, kind of like functions can become lambdas, to
+    enable powerful higher-order part templating.</para>
+  </section>
+
+  <section>
+    <title>Fundamental Concepts</title>
+
+    <section>
+      <title>Registering &amp; Selecting Views</title>
+
+      <para>The <literal>!RespondsWith</literal> annotation is used on a
+      controller to register one or more Views that should be used for
+      responding to a request. The controller does not ultimately decide which
+      view to use, rather the <classname>IPolicy</classname> does.
+      <literal>!RespondsWith</literal> is a simple way of hinting to an
+      <classname>IPolicy</classname> which view should be used to deliver a
+      response. Recess' default (and only) policy, aptly named
+      <classname>DefaultPolicy</classname>, looks at the views hinted and
+      finds the first which can handle the response with the desired
+      mime-type/format. Let's look at an exampe:</para>
+
+      <para><example>
+          <title>The <literal>!RespondsWith</literal> Annotation</title>
+
+          <para><programlisting language="php">&lt;?php
+/** 
+ * !RespondsWith Layouts, Json 
+ * !Prefix my/
+ **/
+class MyController {
+    /** !Route GET, hello/ */
+    function hello() { return $this-&gt;ok('hello'); }
+}
+?&gt;</programlisting></para>
+        </example>Now suppose the following request is handled by in:
+      <literal>GET /my/hello.json</literal>. This will get routed to the
+      <methodname>hello</methodname> method which returns an
+      <classname>OkResponse</classname> with <literal>'hello'</literal> as the
+      suggested template name. <classname>DefaultPolicy</classname> will first
+      ask <classname>LayoutsView</classname> if it can respond with the
+      <classname>OkResponse</classname> object by looking to see if the file
+      <filename>/app/views/my/hello.json.php</filename> exists, if so
+      <classname>LayoutsView</classname> will be chosen to handle the
+      response. If not, <classname>DefaultPolicy</classname> will then ask
+      <classname>JsonView</classname> if it can respond and, because it can
+      automatically respond to JSON request, it always will. If the annotation
+      on <classname>MyController</classname> gave priority to
+      <classname>JsonView</classname> over <classname>LayoutsView</classname>,
+      with: <literal>!RespondsWith Json, Layouts</literal>, then all JSON
+      requests would be handled by <classname>JsonView</classname> without
+      ever asking <classname>LayoutsView</classname>.</para>
+    </section>
+
+    <section>
+      <title>View</title>
+
+      <para>A <classname>View</classname> has only two operations: 1) to
+      decide whether it can or cannot render a Response, 2) to render a
+      Response. These are represented in a simple interface with the abstract
+      methods of AbstractView:
+      <methodname>canRespondWith</methodname>(<parameter>Response
+      $response</parameter>) and
+      <methodname>respondWith</methodname>(<parameter>Response
+      $response</parameter>). Some Views, like
+      <classname>JsonView</classname>, can automatically render a response so
+      developers never touch presentation code. For other Views, like
+      <classname>LayoutsView</classname>, their job is accomplished by
+      dispatching to user-defined scripts/templates from the
+      <literal>/apps/[app]/views/</literal> directory where the user has
+      specified <emphasis>templates</emphasis>.</para>
+    </section>
+
+    <section>
+      <title>Templates</title>
+
+      <para>Templates are where developers spend most of their time designing
+      presentation. Views dispatch control to templates and pass in variables
+      from the response. By default, Recess ships with native PHP templates so
+      templates are plain-old-php files. Templates could also be Smarty
+      templates when paired with <classname>SmartyView</classname>. Templates
+      are placed in the <literal>/apps/[app]/views/</literal> directory which
+      is somewhat of a misnomer because they're
+      <emphasis>templates</emphasis>, not <emphasis>views</emphasis>.</para>
+    </section>
+
+    <section>
+      <title>Assertive Templates</title>
+
+      <para>If you've programmed presentation logic in a PHP application
+      you've likely dealt with <methodname>include</methodname> a good amount.
+      When designing applications that have common UI it is a good practice to
+      extract common parts of the UI to their own script files. The problem
+      with simple includes is that they share scope. This makes includes
+      difficult to reason about, shown in the following example, even if you
+      know <filename>yourguess.php</filename> isn't going to halt, you don't
+      know whether "Hello World?" will get printed, or some other string, or
+      perhaps a notice error that temp is not defined:</para>
+
+      <para><example>
+          <title>The Danger in Sharing include Scope</title>
+
+          <para><programlisting language="php">&lt;?php
+$title = "Hello World?";
+include('print-heading.php');
+echo $title;
+?&gt;
+===
+&lt;?php // print-heading.php
+echo "&lt;h1&gt;$title&lt;/h1&gt;\n";
+unset($title);
+?&gt;
+===
+Output:
+&lt;h1&gt;Hello World&lt;/h1&gt;
+Notice: Undefined variable: title
+</programlisting></para>
+        </example>Using includes can lead to spaghetti-code where you must
+      understand the entirety of every include before you can understand a
+      single script that uses includes. Included files which expect certain
+      variables to be available (perhaps $title is used to fill in the
+      &lt;title&gt; tag) require the includee to wade through the script and
+      determine which variables to have available in the context. For these
+      reasons Recess, as of version 0.20 encourages not using includes in your
+      templates and instead using Assertive Templates.</para>
+
+      <para>Assertive templates are a name given to a certain style of
+      template: one that asserts the presence and type of every input variable
+      at the top of the script. Here is an example:</para>
+
+      <para><example>
+          <title>An Assertive Template</title>
+
+          <para><programlisting language="php">&lt;?php // print-heading.part.php
+Part::input($title, 'string'); 
+Part::input($level, 'int');
+
+/////// Presentation Logic //////
+echo "&lt;h$level&gt;$h1&lt;/h$level&gt;\n";
+unset($title);
+?&gt;</programlisting></para>
+        </example>Layouts and Parts use Assertive Templates to address the
+      problem to make presentation logic more predictable. Here is a similar
+      snippet to the first example using the Part helper:</para>
+
+      <para><example>
+          <title>Avoiding the Danger of Include</title>
+
+          <para><programlisting>&lt;?php
+$title = "Hello world?";
+Part::draw('print-heading', $title, 1);
+echo $title;
+?&gt;
+===
+Output:
+&lt;h1&gt;Hello world?&lt;/h1&gt;
+Hello world?</programlisting>Note that even though
+          <filename>print-heading.part.php</filename> unsets
+          <varname>$title</varname>, it has no effect on our top-level
+          template. Also note that, with the way drawing the
+          <classname>Part</classname> does not require knowing the names of
+          the variables within <filename>print-heading.part.php</filename>. We
+          simply just have to pass the right number of variables in. If this
+          feels more like a function than an include, you're right, it's a lot
+          like a function with typed inputs.</para>
+
+          <para>We'll go into more depth in the section describing the class
+          <classname>AssertiveTemplate</classname>, the common superclass of
+          <classname>Layouts</classname> &amp; <classname>Parts</classname>.
+          Although there is additional effort in defining input, it simplifies
+          your reasoning about view logic and makes working with templates
+          (especially other people's!) much more predictable.</para>
+        </example></para>
+    </section>
+
+    <section>
+      <title>Helpers</title>
+
+      <para linkend="views.sect.helpers">Helpers are classes, typically
+      abstract and static, that provide methods to simplify common tasks when
+      authoring presentation code. There are helpers, for example, for
+      composing URLs to controller methods, importing CSS from your app's
+      <literal>public/</literal> assets directory, etc. For more info on the
+      helpers that ship with Recess see <xref
+      linkend="views.sect.helpers" /></para>
+    </section>
+  </section>
+
+  <section>
+    <title>Views by Example with Layouts</title>
+
+    <para></para>
+  </section>
+
+  <section>
+    <title>Views</title>
+
+    <para>Views have two fundamental jobs:</para>
+
+    <para><orderedlist>
+        <listitem>
+          <para>Tell an <classname>IPolicy</classname> whether or not the view
+          can respond with the <classname>Response</classname> object returned
+          from a <classname>Controller</classname>.</para>
+        </listitem>
+
+        <listitem>
+          <para>Respond using the state in a <classname>Response</classname>
+          object by sending headers
+          (<classname>AbstractView</classname><literal>::</literal><methodname>sendHeadersFor()</methodname>)
+          and rendering the response
+          (<classname>AbstractView</classname><literal>::</literal><methodname>render()</methodname>).</para>
+        </listitem>
+      </orderedlist></para>
+
+    <section>
+      <title>AbstractView</title>
+
+      <para>AbstractView is the abstract base class of all views in Recess.
+      It's two abstract methods are of interest to View developers:</para>
+
+      <para><orderedlist>
+          <listitem>
+            <para><methodname>canRespondWith</methodname>(<parameter>Response
+            $response</parameter>) - Returns a boolean indicating whether the
+            View can respond with $response. It is the view's job to check the
+            requested mime-type/format
+            $response-&gt;request-&gt;accepts-&gt;format(). Responding true
+            implies that the view can render the response in the format
+            requested.</para>
+          </listitem>
+
+          <listitem>
+            <para><methodname>render</methodname>(<parameter>Response
+            $response</parameter>) - Using the data in $response, render a
+            response in the desired format.</para>
+          </listitem>
+        </orderedlist></para>
+    </section>
+
+    <section>
+      <title>NativeView</title>
+
+      <para><classname>NativeView</classname> (<literal>!RespondsWith
+      Native</literal>) is a simple View implementation that takes a response
+      and maps it to a template. This mapping is done based on the requested
+      format, so if a controller returns <code
+      language="php">$this-&gt;ok('viewTemplate')</code> and the requested
+      format is JSON, then NativeView will look for
+      '<filename>viewTemplate.json.php</filename>'.
+      <classname>NativeView</classname> loads no helpers and is as close to
+      native PHP templates as you can get in Recess.
+      <classname>NativeView</classname> does not load any helpers by
+      default.</para>
+
+      <section>
+        <title>Format-based Template Selection</title>
+
+        <para>As already aluded to, NativeView will select a template based on
+        the requested format. In Recess, a format can be requested in one of
+        two ways: 1) It can be forced by appending the format to the end of a
+        URL, i.e. /foo/bar.json, 2) It can be negotiated using the Accept HTTP
+        header. In the first case Recess will only look for a "*.json.php"
+        template.</para>
+      </section>
+    </section>
+
+    <section>
+      <title>LayoutsView</title>
+
+      <para><classname>LayoutsView</classname> (<literal>!RespondsWith
+      Layouts</literal>) extends from <classname>NativeView</classname> but
+      auto-loads key helpers and initializes the <classname>Layout</classname>
+      helper. This is the default View for Recess applications. The helpers
+      available in templates loaded from <classname>LayoutsView</classname>
+      are: <classname>Html</classname>, <classname>Url</classname>,
+      <classname>Layout</classname>, <classname>Buffer</classname>, and
+      <classname>Part</classname>. Your templates are rendered using the
+      <classname>Layout</classname> helper's <methodname>draw</methodname>
+      method.</para>
+    </section>
+
+    <section>
+      <title>JsonView</title>
+
+      <para></para>
+    </section>
+
+    <section>
+      <title>Implementing Custom Views</title>
+
+      <para></para>
+    </section>
+  </section>
+
+  <section>
+    <title xml:id="views.sect.helpers" xml:lang="">View Helpers</title>
+
+    <para></para>
+
+    <section>
+      <title>Loading with View's <methodname>loadHelper</methodname></title>
+
+      <para></para>
+    </section>
+
+    <section>
+      <title>Html</title>
+
+      <para><itemizedlist>
+          <listitem>
+            <para>specialchars($str, $double_encode = true)</para>
+          </listitem>
+
+          <listitem>
+            <para>anchor($uri, $title = NULL, $attributes = NULL)</para>
+          </listitem>
+
+          <listitem>
+            <para>css($style, $media = FALSE)</para>
+          </listitem>
+
+          <listitem>
+            <para>link($href, $rel, $type, $suffix = FALSE, $media =
+            FALSE)</para>
+          </listitem>
+
+          <listitem>
+            <para>js($script)</para>
+          </listitem>
+
+          <listitem>
+            <para>img($src = NULL, $alt = NULL)</para>
+          </listitem>
+
+          <listitem>
+            <para>attributes($attrs)</para>
+          </listitem>
+        </itemizedlist>Special, global function:
+      h($var,$encode_entities=true)</para>
+    </section>
+
+    <section>
+      <title>Url</title>
+
+      <para><itemizedlist>
+          <listitem>
+            <para>action($actionControllerMethodPair)</para>
+          </listitem>
+
+          <listitem>
+            <para>asset($file = '')</para>
+          </listitem>
+
+          <listitem>
+            <para>base($suffix = '')</para>
+          </listitem>
+        </itemizedlist></para>
+    </section>
+
+    <section>
+      <title>Layout</title>
+
+      <para><itemizedlist>
+          <listitem>
+            <para>extend($parent)</para>
+          </listitem>
+
+          <listitem>
+            <para>draw($templateFile, $context)</para>
+          </listitem>
+        </itemizedlist></para>
+    </section>
+
+    <section>
+      <title>Part</title>
+
+      <para><itemizedlist>
+          <listitem>
+            <para>draw($partTemplate, [$args*])</para>
+          </listitem>
+
+          <listitem>
+            <para>block($partTemplate, [$args*])</para>
+          </listitem>
+
+          <listitem>
+            <para>drawArray($partTemplate, $array)</para>
+          </listitem>
+        </itemizedlist></para>
+    </section>
+
+    <section>
+      <title>Buffer</title>
+
+      <para><itemizedlist>
+          <listitem>
+            <para>to(&amp;$block)</para>
+          </listitem>
+
+          <listitem>
+            <para>appendTo(&amp;$block)</para>
+          </listitem>
+
+          <listitem>
+            <para>prependTo(&amp;$block)</para>
+          </listitem>
+
+          <listitem>
+            <para>end()</para>
+          </listitem>
+        </itemizedlist></para>
+
+      <para></para>
+    </section>
+  </section>
+
+  <section>
+    <title>Blocks</title>
+
+    <para></para>
+
+    <section>
+      <title>Abstract Block</title>
+
+      <para></para>
+    </section>
+
+    <section>
+      <title>HtmlBlock</title>
+
+      <para></para>
+    </section>
+
+    <section>
+      <title>PartBlock</title>
+
+      <para></para>
+    </section>
+  </section>
 </chapter>
