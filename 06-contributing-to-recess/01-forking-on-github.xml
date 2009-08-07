@@ -1,6 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter xmlns="http://docbook.org/ns/docbook" version="5.0"
-         xml:id="recess.06.01">
-	<title>Forking on GitHub</title>
-	<para></para>
+<chapter version="5.0" xml:id="recess.06.01"
+         xmlns="http://docbook.org/ns/docbook"
+         xmlns:ns6="http://www.w3.org/1999/xlink"
+         xmlns:ns5="http://www.w3.org/1999/xhtml"
+         xmlns:ns4="http://www.w3.org/1998/Math/MathML"
+         xmlns:ns3="http://www.w3.org/2000/svg"
+         xmlns:ns="http://docbook.org/ns/docbook">
+  <title>Forking on GitHub</title>
+
+  <para>Forking Recess Edge on GitHub is easy, and the complete instructions
+  can be found over at GitHub:
+  http://github.com/guides/fork-a-project-and-submit-your-modifications</para>
+
+  <para></para>
+
+  <sect1>
+    <title>Working with Recess as a Git Submodule</title>
+
+    <para>When developing with the edge version of Recess it can be a pain to
+    maintain source control for your application. Luckily Git has a notion of
+    submodules which allow other git repositories to be embedded within parent
+    repositories. Follow these steps to setup Recess Edge as a submodule
+    within your application's git repository:</para>
+
+    <orderedlist>
+      <listitem>
+        <para>cd into your project's directory</para>
+      </listitem>
+
+      <listitem>
+        <para>git submodule add git://github.com/recess/recess.git
+        ./edge/</para>
+      </listitem>
+
+      <listitem>
+        <para>cp edge/.htaccess .</para>
+      </listitem>
+
+      <listitem>
+        <para>cp edge/recess-conf.php .</para>
+      </listitem>
+
+      <listitem>
+        <para>cp edge/bootstrap.php .</para>
+      </listitem>
+
+      <listitem>
+        <para>cp -R edge/apps apps/</para>
+      </listitem>
+
+      <listitem>
+        <para>cp -R edge/data/ data/</para>
+      </listitem>
+
+      <listitem>
+        <para>cp -R edge/plugins/ plugins/</para>
+      </listitem>
+
+      <listitem>
+        <para>(this is excessive - getting public assets from edge's tools dir
+        into your app dir)</para>
+      </listitem>
+
+      <listitem>
+        <para>mkdir recess</para>
+      </listitem>
+
+      <listitem>
+        <para>mkdir recess/recess</para>
+      </listitem>
+
+      <listitem>
+        <para>mkdir recess/recess/apps</para>
+      </listitem>
+
+      <listitem>
+        <para>mkdir recess/recess/apps/tools</para>
+      </listitem>
+
+      <listitem>
+        <para>cp -R edge/recess/recess/apps/tools/public
+        recess/recess/apps/tools/public</para>
+      </listitem>
+
+      <listitem>
+        <para>Modify recess-conf.php</para>
+
+        <para><programlisting>// Paths to the recess, plugins, and apps directories
+RecessConf::$recessDir = $_ENV['dir.bootstrap'] . 'edge/recess/';</programlisting></para>
+      </listitem>
+    </orderedlist>
+  </sect1>
 </chapter>

@@ -883,7 +883,7 @@ $obj-&gt;wrappedFoo(); <co xml:id="iwrapper-co6" />
           <para><programlisting language="php">&lt;?php
 
 class RequiredWrapper implements IWrapper {
-    protected $properties = array(); <co xml:id="???" />
+    protected $properties = array(); <co xml:id="combine-co1" />
 
     function __construct($property) {
         $this-&gt;properties[] = $property;
@@ -899,9 +899,9 @@ class RequiredWrapper implements IWrapper {
 
         if(!empty($missing)) {
             print("The following properties are required: " . implode(", ", $missing);
-            return false; <co xml:id="???" />
+            return false; <co xml:id="combine-co2" />
         } else {
-            return null; <co xml:id="???" />
+            return null; <co xml:id="combine-co3" />
         }
     }
 
@@ -910,10 +910,10 @@ class RequiredWrapper implements IWrapper {
     function combine(IWrapper $that) {
         if($wrapper instanceof RequiredWrapper) {
             $this-&gt;properties = array_merge($this-&gt;properties, $that-&gt;properties); <co
-                xml:id="???" />
-            return true; <co xml:id="???" />
+                xml:id="combine-co4" />
+            return true; <co xml:id="combine-co5" />
         } else {
-            return false; <co xml:id="???" />
+            return false; <co xml:id="combine-co6" />
         }
     }
 }
@@ -925,38 +925,38 @@ MyModel::wrapMethod('MyModel', 'update', new RequiredWrapper('fieldB'));
 
 ?&gt;</programlisting></para>
         </example><calloutlist>
-          <callout arearefs="???">
+          <callout arearefs="combine-co1">
             <para>We'll store the list of required property names in <code
             language="php">$this-&gt;properties</code>.</para>
           </callout>
 
-          <callout arearefs="???">
+          <callout arearefs="combine-co2">
             <para>Here we short-circuit return <literal>false</literal>, so
             that the wrapped method will not get called. In this naive wrapper
             we're simply printing the error message in code.</para>
           </callout>
 
-          <callout arearefs="???">
+          <callout arearefs="combine-co3">
             <para>Returning null is not necessary, it is the same as not
             returning, shown to illustrate that if all required fields are
             non-null the call will pass through to the wrapped call just
             fine.</para>
           </callout>
 
-          <callout arearefs="???">
+          <callout arearefs="combine-co4">
             <para>Here we combine the state of two
             <classname>RequiredWrapper</classname>s after checking for type
             sameness. </para>
           </callout>
 
-          <callout arearefs="???">
+          <callout arearefs="combine-co5">
             <para>If we can combine we return <literal>true</literal>, and
             <varname>$that</varname> is not added to the list of wrappers
             because we have combined its state with
             <varname>$this</varname>.</para>
           </callout>
 
-          <callout arearefs="???">
+          <callout arearefs="combine-co6">
             <para>If we cannot combine we return
             <literal>false</literal>.</para>
           </callout>
