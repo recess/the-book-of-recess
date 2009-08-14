@@ -29,7 +29,7 @@
         <example>
             <title>
                 <classname>Post</classname>
-                is simple Recess
+                is a simple Recess
                 <classname>Model</classname>
             </title>
             <programlisting language="php"><![CDATA[<?php
