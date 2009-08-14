@@ -88,6 +88,22 @@ $HTTP["url"] =~ "^/recess/|^/plugins/|^/data/|^/apps/" {
 		<itemizedlist>
 			<listitem>
 				<itemizedlist>
+					<title>Version 0.20 on 2009-08-07</title>
+          <listitem><para><link linkend="section.core">Refined, More Extensible Core Classes</link>
+            </para></listitem>
+          <listitem><para><link linkend="section.core.annotations">Custom Annotations</link>
+            </para></listitem>
+          <listitem><para>Simpler Directory Structure</para></listitem>
+          <listitem><para><link linkend="section.views">New Views, Layouts, Parts, and 
+            Blocks</link></para></listitem>
+          <listitem><para><link 
+            xl:href="http://www.recessframework.org/page/recess-php-content-negotiation">
+            Content-Negotiation and Format based View Selection</link></para></listitem>
+          <listitem><para>Runs in PHP 5.3</para></listitem>
+				</itemizedlist>
+			</listitem>
+			<listitem>
+				<itemizedlist>
 					<title>Version 0.12 on 2009-03-31</title>
 					<listitem><para>jQuery included in distribution for off-line support</para></listitem>
 					<listitem><para>Fixed sporadic behavior when text editors like emacs create temporary

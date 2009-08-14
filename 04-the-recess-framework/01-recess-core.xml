@@ -6,7 +6,7 @@
          xmlns:ns4="http://www.w3.org/1999/xhtml"
          xmlns:ns3="http://www.w3.org/1998/Math/MathML"
          xmlns:ns="http://docbook.org/ns/docbook">
-  <title>Recess Core</title>
+  <title xml:id="section.core">Recess Core</title>
 
   <para></para>
 
