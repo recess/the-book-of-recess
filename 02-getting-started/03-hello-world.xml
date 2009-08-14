@@ -175,7 +175,7 @@ class HelloWorldApplication extends Application {
     <primary><classname>Controller</classname></primary>
     <secondary>Basics</secondary>
 </indexterm>
-<para>In Recess a <indexterm><primary><classname>Controller</classname></primary></indexterm> is an object responsible for taking a web request, invoking the intended logic in a <classname>Model</classname>, and then selecting a <classname>View</classname> which will generate the response, likely in <acronym>HTML</acronym>, to be sent back to the client.</para>
+<para>In Recess a <classname>Controller</classname> is an object responsible for taking a web request, invoking the intended logic in a <classname>Model</classname>, and then selecting a <classname>View</classname> which will generate the response, likely in <acronym>HTML</acronym>, to be sent back to the client.</para>
 
 <para>Having kicked-off a <classname>HelloWorldApplication</classname> in <link linkend="recess.02.03.recess-tools">Recess Tools</link>, let's take a quick look at some basic concepts.</para>
 
