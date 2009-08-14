@@ -852,7 +852,7 @@ $obj-&gt;wrappedFoo(); <co xml:id="iwrapper-co6" />
       created a <literal>!Required</literal> annotation that application
       developers can place on properties of a <classname>Model</classname> to
       denote they are required for <methodname>insert</methodname> and
-      <methodname>update</methodname>. Beyind the scenes you've written a
+      <methodname>update</methodname>. Behind the scenes you've written a
       <classname>RequiredWrapper </classname>that takes the name of a property
       and in the <methodname>before</methodname> method checks to make sure
       the property's value is non-null. Each annotation would thus expand to
